@@ -65,7 +65,7 @@ def plot(h1ptcls, h2ptcls, step):
 	plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
 	plt.xlim(-250,250)
 	plt.ylim(-250,250)
-	plt.savefig('sloshing_proj_xy_%d_Gyr' % t2)
+	plt.savefig('sloshing_proj_xy_%0.2f_Gyr' % t2)
 	print 'xy plane finished'
 
 	h1ptcls.rotate_x(90) #so now x-z plane instead of x-y
@@ -77,7 +77,7 @@ def plot(h1ptcls, h2ptcls, step):
 	plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
 	plt.xlim(-850,850)
 	plt.ylim(-850,850)
-	plt.savefig('sloshing_proj_xz_%d_Gyr' % t2)	
+	plt.savefig('sloshing_proj_xz_%0.2f_Gyr' % t2)	
 
 	h1ptcls.rotate_y(90) #so now y-z plane instead of x-z
 	h2ptcls.rotate_y(90)
@@ -88,7 +88,7 @@ def plot(h1ptcls, h2ptcls, step):
 	plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
 	plt.xlim(-850,850)
 	plt.ylim(-850,850)
-	plt.savefig('sloshing_proj_yz_%d_Gyr' % t2)	
+	plt.savefig('sloshing_proj_yz_%0.2f_Gyr' % t2)	
 
 	
 def offset(merger=5, ncoreptcl = 1000, endstep=4):
