@@ -104,14 +104,14 @@ def tcool_plots(ynorm='tff', xnorm = False):
 	ax.xaxis.set_major_formatter(plt.FormatStrFormatter('%0.2f'))
 	for pair in pairs:
 		if ynorm == 'tff':
-	    	profiles = profile_array(tcool_tff, pair[0], pair[1])
-	    	plt.ylim(2,1e4)
-	    	plt.ylabel(r'$t_{cool}/t_{ff}$', fontsize=22)
-	    elif ynorm == 'tH':
-	    	profiles = profile_array(tcool, pair[0], pair[1], ynorm=ts*units.Gyr.in_units('s')) 
-	    	plt.ylim(1e-3, 10)
-	    	plt.ylabel(r'$t_{cool}/t_{H}$', fontsize=22)
-	    plot_profile(profiles, color = color(pair[0]), norm = True, label=labels[pair[0]],ax=ax)
+			profiles = profile_array(tcool_tff, pair[0], pair[1], ynorm=1)
+			plt.ylim(2,1e4)
+			plt.ylabel(r'$t_{cool}/t_{ff}$', fontsize=22)
+		elif ynorm == 'tH':
+			profiles = profile_array(tcool, pair[0], pair[1], ynorm=ts*units.Gyr.in_units('s')) 
+			plt.ylim(1e-3, 10)
+			plt.ylabel(r'$t_{cool}/t_{H}$', fontsize=22)
+		plot_profile(profiles, color = color(pair[0]), norm = True, label=labels[pair[0]],ax=ax)
 	plt.xlabel(r'R/R$_{500}$', fontsize=22)		
 	plt.legend(loc='best')
 	plt.xlim(0.003, 2)

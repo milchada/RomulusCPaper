@@ -51,6 +51,8 @@ def color(ind):
 		return cmap(0)
 
 cummass_profile = h.reverse_property_cascade("tot_mass_profile")[0]
+labels = {ind01:'Non-cool core', ind03:'Merger begins', ind05:'Isolated, loud AGN', ind07: 'Isolated, quiet AGN'}
+
 rho = h.reverse_property_cascade('gas_density_profile')[0]
 
 bh = h['BH_central'][0]
@@ -89,7 +91,6 @@ def r500_ind(row, overdensity=500, type='crit'):
 
 Tmw = h.reverse_property_cascade('Tmw_tcut_profile')[0]
 Tmw *= constants.k_B.to('keV K**-1').value #for entropy to be in keV cm^2
-Pmw = np.array([rho_e_vol[elt]*Tmw[elt].in_units('keV') for elt in range(len(Tmw))]) 
 
 def entropy(T, rho_e):
 	return T/pow(rho_e, 2/3.) 
@@ -97,7 +98,6 @@ def entropy(T, rho_e):
 Kmw = np.array([entropy(Tmw[elt].in_units('keV')*units.keV, rho_g_vol[elt]/(m_p*units.g)) for elt in range(len(Tmw))])
 profilelist = {r'K/K$_{500}$':Kmw, r'$\rho/\rho_{crit}$':rho_g_vol, r'T/T$_{500}$':Tmw}#, 'precip':-precip}
 norms = {r'K/K$_{500}$':K500, r'$\rho/\rho_{crit}$':rho_crit_a, r'T/T$_{500}$':kT500s}#, 'precip':None}
-labels = {ind01:'Non-cool core', ind03:'Merger begins', ind05:'Isolated, loud AGN', ind07: 'Isolated, quiet AGN'}
 T500s = h.reverse_property_cascade('T500mw')[0]*units.keV
 cs = np.sqrt((T500s/(mu*constants.m_p)).to('kpc**2 yr**-2'))
 
