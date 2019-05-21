@@ -39,7 +39,7 @@ for snap in snaps:
 
 unique_snaps.sort()
 
-def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000):
+def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True):
 	t2 = steptime[merger_ind + step]
 	print "t = %.2f Gyr" % t2
 	h1ptcls.physical_units()
@@ -58,42 +58,50 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000):
 	h1ptcls.g['entropy'].units = 'keV cm**2'
 	print "entropy calculated"
 	
-	ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
+	if x:
+		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
                 title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
-	h2pos = h2pos[sort][:ncoreptcl]
-	plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
-	plt.xlim(-850,850)
-	plt.ylim(-850,850)
-	plt.savefig('sloshing_proj_xy_%0.2f_Gyr.png' % t2)
-	print 'xy plane finished'
-	del(ent, h2pos)
-	gc.collect()
+		h2pos = h2pos[sort][:ncoreptcl]
+		plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
+		plt.xlim(-850,850)
+		plt.ylim(-850,850)
+		plt.savefig('sloshing_proj_xy_%0.2f_Gyr.png' % t2)
+		print 'xy plane finished'
+		del(ent, h2pos)
+		gc.collect()
+	else:
+		del(h2pos)
+		gc.collect()
 
-	h1ptcls.rotate_x(90) #so now x-z plane instead of x-y
-	h2ptcls.rotate_x(90)
-	print "Rotated about x axis 90º"
-	ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K',
-                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
-	h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
-	plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
-	plt.xlim(-850,850)
-	plt.ylim(-850,850)
-	plt.savefig('sloshing_proj_xz_%0.2f_Gyr.png' % t2)	
-	del(ent, h2pos)
-	gc.collect()
+	if y:
+		h1ptcls.rotate_x(90) #so now x-z plane instead of x-y
+		h2ptcls.rotate_x(90)
+		print "Rotated about x axis 90º"
+		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K',
+	                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+		h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
+		plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
+		plt.xlim(-850,850)
+		plt.ylim(-850,850)
+		plt.savefig('sloshing_proj_xz_%0.2f_Gyr.png' % t2)	
+		print "xz finished"
+		del(ent, h2pos)
+		gc.collect()
 
-	h1ptcls.rotate_y(90) #so now y-z plane instead of x-z
-	h2ptcls.rotate_y(90)
-	print "Rotated about x axis 90º"
-	ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
-                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
-	h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
-	plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
-	plt.xlim(-850,850)
-	plt.ylim(-850,850)
-	plt.savefig('sloshing_proj_yz_%0.2f_Gyr.png' % t2)	
-	del(ent, h2pos)
-	gc.collect()
+	if z:
+		h1ptcls.rotate_y(90) #so now y-z plane instead of x-z
+		h2ptcls.rotate_y(90)
+		print "Rotated about x axis 90º"
+		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
+	                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+		h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
+		plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
+		plt.xlim(-850,850)
+		plt.ylim(-850,850)
+		plt.savefig('sloshing_proj_yz_%0.2f_Gyr.png' % t2)	
+		print "yz finished"
+		del(ent, h2pos)
+		gc.collect()
 	
 def offset(merger=3, startstep = 0, endstep=4):
 	h1, h2 = mtree[2][merger]
@@ -124,7 +132,7 @@ def offset(merger=3, startstep = 0, endstep=4):
 		h2ptcls = b(h[h2.halo_number])
 		print("particles collected")
 		
-		plot(h1ptcls, h2ptcls, merger_ind, step)
+		plot(h1ptcls, h2ptcls, merger_ind, step, x=False)
 		del(current_snap, h1ptcls, h2ptcls, b)
 		gc.collect()
 		print "Step %d done" % step
