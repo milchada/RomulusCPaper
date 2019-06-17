@@ -55,17 +55,9 @@ labels = {ind01:'Non-cool core', ind03:'Merger begins', ind05:'Isolated, loud AG
 
 rho = h.reverse_property_cascade('gas_density_profile')[0]
 
-bh = h['BH_central'][0]
-bh_mdot = bh.reverse_property_cascade('BH_mdot_ave')[0]
-bh_ts = bh.calculate_for_progenitors('t()')[0]
-bh_mass = bh.reverse_property_cascade('BH_mass')[0]
-
-
 fM = 1.07 #McD 14 table 5
 rho_crit=124.5786101694118#Msol/kpc^3
 m_p = 1.67e-24#g
-
-kT500s = (h.reverse_property_cascade('T500mw')[0] + h.reverse_property_cascade('T500ew')[0])/2.
 f_b = 0.14
 mu = 0.59
 A=1.397
@@ -76,10 +68,6 @@ h70 = 0.67/.7
 rho_crit_a = rho_crit*2e33/((3.085e21)**3)*(1 + zs)**3 #g/cm^3
 ng_500 = 500*rho_crit_a*f_b/(mu*m_p) #mconald 2014 pg 7
 ne_500 = ng_500*mu/mu_e
-P500 = ng_500*kT500s#mcdonald 2014 eq 4
-K500 = kT500s*pow(ne_500,-2./3) #mcdonald 2014 eq 4
-rho_e_vol = np.array([rho*units.g/(units.cm**3) for rho in h.reverse_property_cascade('rho_e_vol_profile')[0]])
-rho_g_vol = m_p*rho_e_vol*mu_e #g/cm^3
 
 def r500_ind(row, overdensity=500, type='crit'):
 	rho500 = overdensity*rho_crit_a[row]/(2e33/(3.086e21)**3)
@@ -89,8 +77,14 @@ def r500_ind(row, overdensity=500, type='crit'):
 	cumrho = np.divide(cummass_profile[row], 4*np.pi*(rsnap**3)/3.) #msol kpc^-3
 	return np.argmin(abs(cumrho-rho500))
 
+kT500s = (h.reverse_property_cascade('T500mw')[0] + h.reverse_property_cascade('T500ew')[0])/2.
+P500 = ng_500*kT500s#mcdonald 2014 eq 4
+K500 = kT500s*pow(ne_500,-2./3) #mcdonald 2014 eq 4
 Tmw = h.reverse_property_cascade('Tmw_tcut_profile')[0]
 Tmw *= constants.k_B.to('keV K**-1').value #for entropy to be in keV cm^2
+
+rho_e_vol = np.array([rho*units.g/(units.cm**3) for rho in h.reverse_property_cascade('rho_e_vol_profile')[0]])
+rho_g_vol = m_p*rho_e_vol*mu_e #g/cm^3
 
 def entropy(T, rho_e):
 	return T/pow(rho_e, 2/3.) 
@@ -100,6 +94,11 @@ profilelist = {r'K/K$_{500}$':Kmw, r'$\rho/\rho_{crit}$':rho_g_vol, r'T/T$_{500}
 norms = {r'K/K$_{500}$':K500, r'$\rho/\rho_{crit}$':rho_crit_a, r'T/T$_{500}$':kT500s}#, 'precip':None}
 T500s = h.reverse_property_cascade('T500mw')[0]*units.keV
 cs = np.sqrt((T500s/(mu*constants.m_p)).to('kpc**2 yr**-2'))
+
+bh = h['BH_central'][0]
+bh_mdot = bh.reverse_property_cascade('BH_mdot_ave')[0]
+bh_ts = bh.calculate_for_progenitors('t()')[0]
+bh_mass = bh.reverse_property_cascade('BH_mass')[0]
 
 def Pbh():
 	eps = 0.02
