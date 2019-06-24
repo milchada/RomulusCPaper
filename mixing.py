@@ -91,7 +91,7 @@ def collect_ptcls(snapnum,filename):
 	core_gas.physical_units()
 	print "halo particles loaded"
 	Ks = np.empty([len(core_ind), 6])
-	# Ks.dtype.names = ['ind','mass','Ki','ri','Kf','rf']
+	# Ks.dtype.names = ['ind','mass','Ki','Kf','ri','rf']
 	Ks[:,0] = core_ind
 	Ks[:,1] = core_gas['mass'].in_units('Msol')
 	Ks[:,2] = entropy(core_gas, allgas=allgas)
@@ -104,9 +104,11 @@ def collect_ptcls(snapnum,filename):
 	gc.collect()
 
 	halo_ptcls = pynbody.load(unique_snaps[snapnums[snapnum]]).halos(dosort=True).load_copy(1)
+	halo_ptcls.physical_units()
 	print "next snap loaded"
+	pynbody.analysis.halo.center(halo_ptcls, mode='ssc')
+	print "snap centred"
 	core_gas = halo_ptcls.g[(np.in1d(halo_ptcls.g['iord'], Ks[:,0]))]
-	core_gas.physical_units()
 	del(halo_ptcls)
 	gc.collect()
 	
