@@ -78,6 +78,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
 		h2ptcls.rotate_x(90)
 		print "Rotated about x axis 90º"
 	if y:
+		fig, ax = plt.subplot()
 		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K',
 	                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
 		h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
@@ -104,7 +105,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
 		del(ent, h2pos)
 		gc.collect()
 	
-def offset(merger=3, startstep = 0, endstep=4):
+def offset(merger=5, startstep = 0, endstep=4):
 	h1, h2 = mtree[2][merger]
 	
 	merger_snap = str(basename+h2.path.split('/halo')[0])
@@ -139,4 +140,4 @@ def offset(merger=3, startstep = 0, endstep=4):
 		print "Step %d done" % step
 
 if __name__=="__main__":
-	offset(3, 1)
+	offset(5, 1)

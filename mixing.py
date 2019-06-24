@@ -1,15 +1,8 @@
-import glob
+
 import numpy as np 
-# import matplotlib
-# if __name__=="__main__":
-# 	matplotlib.use('Agg') #makes sure matplotlib doesn't look for a display when plotting
-import matplotlib.pylab as plt
-from matplotlib.pylab import cm
-import gc
 from scipy.stats import binned_statistic
 import tangos as db
-import pynbody 
-import matplotlib
+import glob, gc, pynbody
 
 #load particles
 basename = '/nobackupp2/mtremmel/Romulus/'
@@ -127,6 +120,6 @@ def collect_ptcls(snapnum,filename):
 
 if __name__=="__main__":
 	for snapind in snapinds:
-		filename = '%0.2f-%0.2f_Ks_histogram' % (keytimes[snapind-1], keytimes[snapind])
+		filename = '%0.2f-%0.2f_Ks_histogram_%d_kpc' % (keytimes[snapind-1], keytimes[snapind], rcore)
 		print snapind, filename
 		collect_ptcls(snapind, filename)
