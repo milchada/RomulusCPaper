@@ -4,6 +4,56 @@ from astropy import constants
 
 Ez = Planck15.efunc(zs)
 
+
+kT500s = (h.reverse_property_cascade('T500mw')[0] + h.reverse_property_cascade('T500ew')[0])/2.
+P500 = ng_500*kT500s#mcdonald 2014 eq 4
+K500 = kT500s*pow(ne_500,-2./3) #mcdonald 2014 eq 4
+Tmw = h.reverse_property_cascade('Tmw_tcut_profile')[0]
+Tmw *= constants.k_B.to('keV K**-1').value #for entropy to be in keV cm^2
+
+rho_e_vol = np.array([rho*units.g/(units.cm**3) for rho in h.reverse_property_cascade('rho_e_vol_profile')[0]])
+rho_g_vol = m_p*rho_e_vol*mu_e #g/cm^3
+
+def entropy(T, rho_e):
+	return T/pow(rho_e, 2/3.) 
+
+Kmw = np.array([entropy(Tmw[elt].in_units('keV')*units.keV, rho_g_vol[elt]/(m_p*units.g)) for elt in range(len(Tmw))])
+profilelist = {r'K/K$_{500}$':Kmw, r'$\rho/\rho_{crit}$':rho_g_vol, r'T/T$_{500}$':Tmw}#, 'precip':-precip}
+norms = {r'K/K$_{500}$':K500, r'$\rho/\rho_{crit}$':rho_crit_a, r'T/T$_{500}$':kT500s}#, 'precip':None}
+T500s = h.reverse_property_cascade('T500mw')[0]*units.keV
+cs = np.sqrt((T500s/(mu*constants.m_p)).to('kpc**2 yr**-2'))
+
+bh = h['BH_central'][0]
+bh_mdot = bh.reverse_property_cascade('BH_mdot_ave')[0]
+bh_ts = bh.calculate_for_progenitors('t()')[0]
+bh_mass = bh.reverse_property_cascade('BH_mass')[0]
+
+def Pbh():
+	eps = 0.02
+	#sound crossing time - no I really need adiabatic index for this
+	power = eps*(bh_mdot)*units.Msun*constants.c**2/units.yr
+	return power.value*power.unit.in_units('keV yr**-1')
+
+def r_E(ind): #a la Tang & Churazov
+	t = tbh[ind]
+	mdot = bhmdot[ind]
+	temp = Tmw/pynbody.units.k.in_units('keV K**-1') #back to K
+	rho_e = h['rho_e_vol_profile'] #cm^-3
+	rho_g = rho_e/mu
+	Etherm_vol = 3./2 * pynbody.units.k.in_units('erg K**-1')*rho_g*units.cc.in_units('m^-3')*temp
+
+	dr = 0.1*pynbody.units.kpc.in_units('m')#kpc
+	r = np.arange(len(rho_e))/10. *pynbody.units.kpc.in_units('m') #kpc 
+	dEtherm = Etherm_vol * 4 *np.pi*r**2 * dr 
+	Etherm = np.cumsum(dEtherm) #units of ergs
+
+def Pnorm(x, P0, c500, alpha, gamma): #Arnaud et al 2010 M500
+    beta = 5.4905
+    ap = 0.12 #eq 7
+    apx = 0.1 - (ap+0.10)*pow(x/0.5,3)/(1+pow(x/0.5,3)) #eq 8
+    px = P0/(pow(c500*x, gamma)*pow(1+pow(c500*x, alpha), (beta-gamma)/alpha)) #eq 11
+    return px#*pow(M500*h70/3e14,0.12) #eq 13
+
 tff = []
 for row in range(len(cummass_profile)):
 	r = np.arange(len(cummass_profile[row]))/10. * 3.085e21 #kpc to cm
@@ -14,6 +64,7 @@ tcool = h.reverse_property_cascade('tcool_tcut_mw_profile_primordial')[0] #in s
 tcool_tff = np.array([tcool[elt]/tff[elt] for elt in range(len(tff))])
 gas_mass = h.reverse_property_cascade('gas_mass_profile')[0]
 vdisps = h.reverse_property_cascade('v_disp_profile')[0]
+
 
 def profile_evolutions():
 	fig, ax = plt.subplots()
