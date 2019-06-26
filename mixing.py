@@ -80,7 +80,7 @@ def match_gas_ind(original_core_ind, step_core_ptcls):
 	return xind 
 	
 def collect_ptcls(snapnum,filename):
-	core_ind, core_gas = select_core_particles(snapnums[snapnum - 1], radius)
+	core_ind, core_gas = select_core_particles(snapnums[snapnum], radius)
 	core_gas.physical_units()
 	print "halo particles loaded"
 	Ks = np.empty([len(core_ind), 6])
@@ -96,7 +96,7 @@ def collect_ptcls(snapnum,filename):
 	del(core_gas)
 	gc.collect()
 
-	halo_ptcls = pynbody.load(unique_snaps[snapnums[snapnum]]).halos(dosort=True).load_copy(1)
+	halo_ptcls = pynbody.load(unique_snaps[snapnums[snapnum-1]]).halos(dosort=True).load_copy(1)
 	halo_ptcls.physical_units()
 	print "next snap loaded"
 	pynbody.analysis.halo.center(halo_ptcls, mode='ssc')
@@ -120,6 +120,6 @@ def collect_ptcls(snapnum,filename):
 
 if __name__=="__main__":
 	for snapind in snapinds:
-		filename = '%0.2f-%0.2f_Ks_histogram_%d_kpc' % (keytimes[snapind-1], keytimes[snapind], rcore)
+		filename = '%0.2f-%0.2f_Ks_histogram_%d_kpc' % (keytimes[snapind], keytimes[snapind-1], rcore)
 		print snapind, filename
 		collect_ptcls(snapind, filename)
