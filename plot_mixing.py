@@ -1,8 +1,8 @@
 import glob
 import numpy as np
-# import matplotlib
-# if __name__=="__main__":
-#       matplotlib.use('Agg') #makes sure matplotlib doesn't look for a display when plotting
+import matplotlib
+if __name__=="__main__":
+      matplotlib.use('Agg') #makes sure matplotlib doesn't look for a display when plotting
 import matplotlib.pylab as plt
 from matplotlib import cm, colors
 import gc

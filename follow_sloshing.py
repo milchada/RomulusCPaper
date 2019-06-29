@@ -2,6 +2,9 @@
 import numpy as np
 import tangos
 import pynbody
+import matplotlib
+if __name__ == "__main__":
+	matplotlib.use("Agg")
 from tangos.examples import mergers
 import matplotlib.pylab as plt
 import gc
@@ -42,7 +45,6 @@ unique_snaps.sort()
 def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True):
 	t2 = steptime[merger_ind + step]
 	print "t = %.2f Gyr" % t2
-	pynbody.analysis.halo.center(h1ptcls.g, mode='ssc')
 	print "box centred on halo 1"
 	
 	h2pos = h2ptcls['pos']
@@ -119,7 +121,9 @@ def offset(merger=3, startstep = 0, endstep=4):
 		print "Halo 2 loaded"
 		h1ptcls.physical_units()
 		h2ptcls.physical_units()
+		h1ptcls['pos'] -= h1pos[step]
 		h2ptcls['pos'] -= h1pos[step]
+		print( "particles centered on halo 1")
 		plot(h1ptcls, h2ptcls, merger_ind, 0)
 
 	for step in xrange(max(1, startstep), endstep):
@@ -132,10 +136,12 @@ def offset(merger=3, startstep = 0, endstep=4):
 		
 		h1ptcls = current_snap.halos(dosort=True).load_copy(1)
 		h2ptcls = b(h[h2.halo_number])
+		print("particles collected")
 		h1ptcls.physical_units()
 		h2ptcls.physical_units()
+		h1ptcls['pos'] -= h1pos[step]
 		h2ptcls['pos'] -= h1pos[step]
-		print("particles collected")
+		print( "particles centered on halo 1")
 		
 		plot(h1ptcls, h2ptcls, merger_ind, step, x=False)
 		del(current_snap, h1ptcls, h2ptcls, b)
