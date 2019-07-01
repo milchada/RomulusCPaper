@@ -251,11 +251,11 @@ def bcg_history(interactive=True, prop = 'sfh'):
 		sfh = h.calculate_for_progenitors('SFR_encl_25Myr')[0] #check key name
 		sfh_enc = np.array([sfh[row][-1] for row in range(len(sfh))]) #so i did this for the entire halo
 		mstar = h.calculate_for_progenitors('Mstar')[0]
-		"REDO THIS SO IT'S IN CORE ONLY"
+		
 		sfh_core = np.array([sfh[row][r500_ind(row)/10] for row in range(len(sfh))]) 
 		mstar_profile = h.calculate_for_progenitors('star_mass_profile')[0]
 		mstar_core = np.array([mstar_profile[row][r500_ind(row)/10] for row in range(len(sfh))])
-		#ssfr = sfh_enc/mstar
+		
 		ssfr = sfh_core/mstar_core
 		ymin=1e-12
 		ymax=1e-8
@@ -268,9 +268,13 @@ def bcg_history(interactive=True, prop = 'sfh'):
 		ymax = 50
 	elif prop == 'precip':
 		precip = -1*h.reverse_property_cascade('colder_mdot_in_nosubs')[0]
-		core_prop = np.sum(precip[:,:33], axis=1)
-		ymin = 800
-		ymax = 3e3
+		r = 10**np.linspace(0,3,100)
+		ind1 = np.argmin(abs(r - 5))
+		ind2 = np.argmin(abs(r - 30))
+		core_prop = np.sum(precip[:,ind1:ind2], axis=1)
+		ymin = 1e9
+		ymax = 1e11
+
 	fig, ax = plt.subplots()
 	ax2 = ax.twinx()
 	for pair in pairs:
@@ -278,7 +282,7 @@ def bcg_history(interactive=True, prop = 'sfh'):
 	linecmap = cm.seismic
 	if prop == 'sfh':
 		ax.plot(ts, ssfr, c=linecmap(0.95))
-		ax.set_ylabel(r'sSFR (M_$\odot yr^{-1}/M_\odot$)', color=linecmap(0.95), fontsize=22)
+		ax.set_ylabel(r'sSFR(<0.1$R_{500}$) (M_$\odot yr^{-1}/M_\odot$)', color=linecmap(0.95), fontsize=22)
 		smooth = binned_statistic(bh_ts, bh_mdot, range=(0,14), bins=14)
 		ax2.plot(smooth.bin_edges[:-1]+0.5, smooth.statistic, c=linecmap(0.15),ls='dotted',lw=2)
 	elif prop in ['ent', 'precip']:
@@ -289,7 +293,8 @@ def bcg_history(interactive=True, prop = 'sfh'):
 		if prop == 'ent':
 			ax.set_ylabel(r'K(<10kpc) (keV cm$^2$)', color=linecmap(0.95), fontsize=22)
 		else:
-			ax.set_ylabel(r'$\dot{M_{cold}}$(<10kpc) (M$_\odot yr^{-1}$)', color=linecmap(0.95), fontsize=22)
+			ax.set_ylabel(r'${M_{cold}}$(5-30kpc) (M$_\odot$)', color=linecmap(0.95), fontsize=22)
+	
 	ax2.plot(bh_ts[:len(bh_mdot)], bh_mdot, c=linecmap(0.15))
 	ax.set_xlabel('t (Gyr)', fontsize=22)
 	ax2.set_ylabel(r'$\dot{M_\bullet} (M_\odot yr^{-1})$', color=linecmap(0.15), fontsize=22)
