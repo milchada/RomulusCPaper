@@ -47,52 +47,49 @@ def plot(file, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=None,
     """
     tmin, tmax = file.split('_')[0].split('-') 
     Ks = np.load(files)
-
     Ks = Ks[Ks[:,1] > 1] #mass
     Ks = Ks[Ks[:,1] < 1e15]
     Ks = Ks[np.isreal(Ks[:,ind2])]
     fig, ax = plt.subplots()
     if xmin == None:
-            xmin = np.nanmin(Ks[:,ind1])
-            xmax = np.nanmax(Ks[:,ind1])
+        xmin = np.nanmin(Ks[:,ind1])
+        xmax = np.nanmax(Ks[:,ind1])
     if ymin == None:
-            ymin = np.nanmin(Ks[:,ind2])
-            ymax = np.nanmax(Ks[:,ind2])
+        ymin = np.nanmin(Ks[:,ind2])
+        ymax = np.nanmax(Ks[:,ind2])
     if log:
-            binned = binned_statistic(np.log10(Ks[:,ind1]), np.log10(Ks[:,ind2]), bins = nbins, range = (xmin, xmax))
-            x = 10**binned.bin_edges[:-1]
-            plt.xscale('log')
-            plt.yscale('log')
-            plt.ylim(10**ymin, 10**ymax)
+        binned = binned_statistic(np.log10(Ks[:,ind1]), np.log10(Ks[:,ind2]), bins = nbins, range = (xmin, xmax))
+        x = 10**binned.bin_edges[:-1]
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.ylim(10**ymin, 10**ymax)
     else:
-            binned = binned_statistic(Ks[:,ind1], Ks[:,ind2], bins = nbins, range = (xmin, xmax))   
-            x = binned.bin_edges[:-1]
-            plt.ylim(ymin, ymax)
+        binned = binned_statistic(Ks[:,ind1], Ks[:,ind2], bins = nbins, range = (xmin, xmax))   
+        x = binned.bin_edges[:-1]
+        plt.ylim(ymin, ymax)
     median = []
     min = []
     max = []
     mcells = []
     for i in xrange(nbins):
-            median.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 50))
-            min.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 25))
-            max.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 75))
-            mcells.append(np.nansum(Ks[:,1][binned.binnumber == i]))
+        median.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 50))
+        min.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 25))
+        max.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 75))
+        mcells.append(np.nansum(Ks[:,1][binned.binnumber == i]))
 
     median = np.array(median)
     min = np.array(min)
     max = np.array(max)
     mcells = np.array(mcells)
-    
-    # plt.plot(x, x, c='g') #ax[row,col]
-    # plt.fill_between(x, min, max, color=colors,alpha=0.5)
+
     if ret_cbar:
-            norm = colors.LogNorm(vmin = np.nanmin(mcells[mcells>0]),vmax = np.nanmax(mcells))
-            m = cm.ScalarMappable(norm = norm, cmap = cm.magma)
-    
+        norm = colors.LogNorm(vmin = np.nanmin(mcells[mcells>0]),vmax = np.nanmax(mcells))
+        m = cm.ScalarMappable(norm = norm, cmap = cm.magma)
+
     if log:
-            plt.bar(x, bottom=min, height=(max - min), width=10**(binned.bin_edges[1:])-x ,color=m.to_rgba(mcells))
+        plt.bar(x, bottom=min, height=(max - min), width=10**(binned.bin_edges[1:])-x ,color=m.to_rgba(mcells))
     else:
-            plt.bar(x, bottom=min, height=(max - min), width=binned.bin_edges[1:]-x ,color=m.to_rgba(mcells))
+        plt.bar(x, bottom=min, height=(max - min), width=binned.bin_edges[1:]-x ,color=m.to_rgba(mcells))
 
     plt.plot(x, median, c='w')
     plt.plot(x, x, c='g')
@@ -101,10 +98,10 @@ def plot(file, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=None,
     plt.xlabel('%s(t=%0.2f Gyr) (%s)' % (qty, tmin, unit))
     plt.ylabel('%s(t=%0.2f Gyr) (%s)' % (qty, tmax, unit))
     plt.xlim(x.min(), x.max())
-    print "plotting complete"
+    print( "plotting complete")
     plt.savefig('mixing_%0.2fGyr_%dkpc%s.png' % (tmin, rcore, suffix))
     if ret_cbar:
-            return m
+        return m
 
 def plotall():
     rcore = 20

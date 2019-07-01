@@ -74,9 +74,8 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
 	if y or z:
 		h1ptcls.rotate_x(90) #so now x-z plane instead of x-y
 		h2ptcls.rotate_x(90)
-		print "Rotated about x axis 90º"
+		print "Rotated about x axis 90deg"
 	if y:
-		fig, ax = plt.subplot()
 		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K',
 	                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
 		h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
@@ -91,7 +90,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
 	if z:
 		h1ptcls.rotate_y(90) #so now y-z plane instead of x-z
 		h2ptcls.rotate_y(90)
-		print "Rotated about x axis 90º"
+		print "Rotated about x axis 90deg"
 		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
 	                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
 		h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
