@@ -9,7 +9,7 @@ import gc
 from scipy.stats import binned_statistic
 
 
-def plot(file, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=None, 
+def plot(file, rcore, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=None, 
     ymin=None, ymax=None,log=False, qty='K', unit = r'keV $cm^2$', nbins = 25, suffix=''):
     """
     file:
@@ -46,7 +46,7 @@ def plot(file, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=None,
     Append to end of output plot name.
     """
     tmin, tmax = file.split('_')[0].split('-') 
-    Ks = np.load(files)
+    Ks = np.load(file)
     Ks = Ks[Ks[:,1] > 1] #mass
     Ks = Ks[Ks[:,1] < 1e15]
     Ks = Ks[np.isreal(Ks[:,ind2])]
@@ -71,7 +71,7 @@ def plot(file, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=None,
     min = []
     max = []
     mcells = []
-    for i in xrange(nbins):
+    for i in range(nbins):
         median.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 50))
         min.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 25))
         max.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 75))
@@ -95,41 +95,39 @@ def plot(file, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=None,
     plt.plot(x, x, c='g')
     m.set_array([])
     plt.colorbar(m)
-    plt.xlabel('%s(t=%0.2f Gyr) (%s)' % (qty, tmin, unit))
-    plt.ylabel('%s(t=%0.2f Gyr) (%s)' % (qty, tmax, unit))
+    plt.xlabel('%s(t=%s Gyr) (%s)' % (qty, tmin, unit))
+    plt.ylabel('%s(t=%s Gyr) (%s)' % (qty, tmax, unit))
     plt.xlim(x.min(), x.max())
     print( "plotting complete")
-    plt.savefig('mixing_%0.2fGyr_%dkpc%s.png' % (tmin, rcore, suffix))
+    plt.savefig('mixing_%sGyr_%dkpc_%s.png' % (tmin, rcore, qty))
     if ret_cbar:
         return m
 
 def plotall():
-    rcore = 20
-    files = glob.glob('*20kpc.npy')
+    files = glob.glob('*20_kpc.npy')
     files.sort()
 
-    m_r = plot(files[-1], ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=1000,
+    m_r = plot(files[-1], rcore=20, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=50,
         ret_cbar = True, qty='r', unit = r'kpc')
-    m_K = plot(files[-1], ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
+    m_K = plot(files[-1], rcore=20, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
         log=True, ret_cbar = True)
     
     for file in files[:-1]:
-        plot(file, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0, ymax=1000, 
+        plot(file, rcore=20, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0, ymax=100, 
             m=m_r, qty='r', unit = r'kpc')
-        plot(file, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
+        plot(file, rcore=20, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
             log=True, m=m_K)
     
-    rcore = 30
-    files = glob.glob('*30kpc.npy')
+    files = glob.glob('*30_kpc.npy')
     files.sort()
     
-    m_r = plot(files[-1], ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=1000,
+    m_r = plot(files[-1], rcore=30, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=50,
         ret_cbar = True, qty='r', unit = r'kpc')
-    m_K = plot(files[-1], ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
+    m_K = plot(files[-1], rcore=30, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
         log=True, ret_cbar = True)
     
     for file in files[:-1]:
-        plot(file, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0, ymax=1000, 
+        plot(file, rcore=30, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0, ymax=100, 
             m=m_r, qty='r', unit = r'kpc')
-        plot(file, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
+        plot(file, rcore=30, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
             log=True, m=m_K)

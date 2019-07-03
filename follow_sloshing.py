@@ -57,16 +57,18 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
 	print "entropy calculated"
 	
 	if x:
-		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
+		filename = 'sloshing_proj_xy_'+str(t2)+'_Gyr.png'
+		if not glob.glob(filename):
+			ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
                 title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
-		h2pos = h2pos[sort][:ncoreptcl]
-		plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
-		plt.xlim(-850,850)
-		plt.ylim(-850,850)
-		plt.savefig('sloshing_proj_xy_%0.2f_Gyr.png' % t2)
-		print 'xy plane finished'
-		del(ent, h2pos)
-		gc.collect()
+			h2pos = h2pos[sort][:ncoreptcl]
+			plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
+			plt.xlim(-850,850)
+			plt.ylim(-850,850)
+			plt.savefig('sloshing_proj_xy_%0.2f_Gyr.png' % t2)
+			print 'xy plane finished'
+			del(ent, h2pos)
+			gc.collect()
 	else:
 		del(h2pos)
 		gc.collect()
@@ -76,31 +78,35 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
 		h2ptcls.rotate_x(90)
 		print "Rotated about x axis 90deg"
 	if y:
-		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K',
-	                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
-		h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
-		plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
-		plt.xlim(-850,850)
-		plt.ylim(-850,850)
-		plt.savefig('sloshing_proj_xz_%0.2f_Gyr.png' % t2)	
-		print "xz finished"
-		del(ent, h2pos)
-		gc.collect()
+		filename = 'sloshing_proj_xz_'+str(t2)+'_Gyr.png'
+        if not glob.glob(filename):
+			ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K',
+		                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+			h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
+			plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
+			plt.xlim(-850,850)
+			plt.ylim(-850,850)
+			plt.savefig('sloshing_proj_xz_%0.2f_Gyr.png' % t2)	
+			print "xz finished"
+			del(ent, h2pos)
+			gc.collect()
 
 	if z:
-		h1ptcls.rotate_y(90) #so now y-z plane instead of x-z
-		h2ptcls.rotate_y(90)
-		print "Rotated about x axis 90deg"
-		ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
-	                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
-		h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
-		plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
-		plt.xlim(-850,850)
-		plt.ylim(-850,850)
-		plt.savefig('sloshing_proj_yz_%0.2f_Gyr.png' % t2)	
-		print "yz finished"
-		del(ent, h2pos)
-		gc.collect()
+		filename = 'sloshing_proj_xz_'+str(t2)+'_Gyr.png'
+		if not glob.glob(filename):
+			h1ptcls.rotate_y(90) #so now y-z plane instead of x-z
+			h2ptcls.rotate_y(90)
+			print "Rotated about x axis 90deg"
+			ent = image(h1ptcls.g, width='1700 kpc',qty='entropy', qtytitle=r'K', 
+		                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+			h2pos = h2ptcls['pos'][sort][:ncoreptcl] 
+			plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')#vel_colors, lw=0)
+			plt.xlim(-850,850)
+			plt.ylim(-850,850)
+			plt.savefig('sloshing_proj_yz_%0.2f_Gyr.png' % t2)	
+			print "yz finished"
+			del(ent, h2pos)
+			gc.collect()
 	
 def offset(merger=3, startstep = 0, endstep=4):
 	h1, h2 = mtree[2][merger]
@@ -126,26 +132,28 @@ def offset(merger=3, startstep = 0, endstep=4):
 		plot(h1ptcls, h2ptcls, merger_ind, 0)
 
 	for step in xrange(max(1, startstep), endstep):
+		
 		plt.clf()
 		current_snap = pynbody.load(unique_snaps[merger_ind+step])
 		t2 = current_snap.properties['time'].in_units('Gyr') #tested - I'm using the right snapshots 
 		print "Snap %d loaded" % step
-		b = pynbody.bridge.OrderBridge(merger_sim, current_snap)
-		print "Bridge made"
-		
-		h1ptcls = current_snap.halos(dosort=True).load_copy(1)
-		h2ptcls = b(h[h2.halo_number])
-		print("particles collected")
-		h1ptcls.physical_units()
-		h2ptcls.physical_units()
-		h1ptcls['pos'] -= h1pos[step]
-		h2ptcls['pos'] -= h1pos[step]
-		print( "particles centered on halo 1")
-		
-		plot(h1ptcls, h2ptcls, merger_ind, step, x=False)
-		del(current_snap, h1ptcls, h2ptcls, b)
-		gc.collect()
-		print "Step %d done" % step
+		if len( glob.glob('sloshing_*'+str(t2)+'_Gyr.png')) < 3:
+			b = pynbody.bridge.OrderBridge(merger_sim, current_snap)
+			print "Bridge made"
+			
+			h1ptcls = current_snap.halos(dosort=True).load_copy(1)
+			h2ptcls = b(h[h2.halo_number])
+			print("particles collected")
+			h1ptcls.physical_units()
+			h2ptcls.physical_units()
+			h1ptcls['pos'] -= h1pos[step]
+			h2ptcls['pos'] -= h1pos[step]
+			print( "particles centered on halo 1")
+			
+			plot(h1ptcls, h2ptcls, merger_ind, step, x=False)
+			del(current_snap, h1ptcls, h2ptcls, b)
+			gc.collect()
+			print "Step %d done" % step
 
 if __name__=="__main__":
-	offset(5, 1)
+	offset(5, 2)
