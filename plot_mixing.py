@@ -107,7 +107,7 @@ def plotall():
     files = glob.glob('*20_kpc.npy')
     files.sort()
 
-    m_r = plot(files[-1], rcore=20, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=50,
+    m_r = plot(files[-1], rcore=20, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=100,
         ret_cbar = True, qty='r', unit = r'kpc')
     m_K = plot(files[-1], rcore=20, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
         log=True, ret_cbar = True)
@@ -121,7 +121,7 @@ def plotall():
     files = glob.glob('*30_kpc.npy')
     files.sort()
     
-    m_r = plot(files[-1], rcore=30, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=50,
+    m_r = plot(files[-1], rcore=30, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0,ymax=100,
         ret_cbar = True, qty='r', unit = r'kpc')
     m_K = plot(files[-1], rcore=30, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
         log=True, ret_cbar = True)

@@ -199,7 +199,7 @@ def trace_outflows(allgas=False, nosubs=True):
 			halo_ptcls = halo_ptcls[halo_ptcls['amiga.grp'] == 1]
 		halo_ptcls.physical_units()
 		print "halo loaded"
-		pynbody.analysis.halo.center(halo_ptcls.g, mode='ssc')
+		halo_ptcls['pos'] -= snap_halo['shrink_center']
 		#1: track particles from single burst
 		if plot_rain:
 		    rain(active_snap, halo_ptcls, snapnum, cumul_indices, nosubs)
