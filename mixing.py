@@ -18,7 +18,7 @@ steptime = halo.reverse_property_cascade('t()')[0]
 keytimes = [9.2,9.7, 11.3, 11.65, 11.97, 12.20, 12.50,12.80, 13.25, 13.55] #Gyr
 snapnums = [np.argmin(abs(np.array(steptime)-keytime)) for keytime in keytimes]
 snapinds = [1,3,5,7,9] #
-rcore = 20
+rcore = 30
 radius = str(rcore)+' kpc'
 nbins = 25
 
@@ -48,9 +48,9 @@ unique_snaps.sort()
 def entropy(ptcls, allgas=False):
 	T_kev = ptcls['temp'].in_units('K')*pynbody.units.k.in_units('keV K**-1')
 	if allgas:
-		n_cc = ptcls['rho'].in_units('m_p cm**-3')/ptcls['mu']
-	else:
 		n_cc = ptcls['ne']*ptcls.g['rho'].in_units('m_p cm**-3')
+	else:
+		n_cc = ptcls.g['rho'].in_units('m_p cm**-3')/ptcls.g['mu']
 	entropy = T_kev*pow(n_cc,-2./3)
 	entropy.units = 'keV cm^2'
 	return entropy #*weight
@@ -126,7 +126,13 @@ def collect_ptcls(snapnum,filename):
 	np.save(filename, Ks)
 
 if __name__=="__main__":
+	from multiprocessing import Process
+	proc = []
 	for snapind in snapinds:
 		filename = '%0.2f-%0.2f_Ks_histogram_%d_kpc' % (keytimes[snapind], keytimes[snapind-1], rcore)
 		print snapind, filename
-		collect_ptcls(snapind, filename)
+		p = Process(target = collect_ptcls, args=(snapind, filename))
+		p.start()
+		proc.append(p)
+	for p in proc:
+		p.join()

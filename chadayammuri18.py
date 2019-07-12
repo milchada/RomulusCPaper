@@ -4,12 +4,14 @@ from astropy import constants
 
 Ez = Planck15.efunc(zs)
 
-
+#kT500 is average of MW and EW values
 kT500s = (h.reverse_property_cascade('T500mw')[0] + h.reverse_property_cascade('T500ew')[0])/2.
-P500 = ng_500*kT500s#mcdonald 2014 eq 4
-K500 = kT500s*pow(ne_500,-2./3) #mcdonald 2014 eq 4
+#P500, K500 from McDonald 2014 eq 4
+P500 = ng_500*kT500s
+K500 = kT500s*pow(ne_500,-2./3) 
 Tmw = h.reverse_property_cascade('Tmw_tcut_profile')[0]
-Tmw *= constants.k_B.to('keV K**-1').value #for entropy to be in keV cm^2
+#Convert T to keV
+Tmw *= constants.k_B.to('keV K**-1').value 
 
 rho_e_vol = np.array([rho*units.g/(units.cm**3) for rho in h.reverse_property_cascade('rho_e_vol_profile')[0]])
 rho_g_vol = m_p*rho_e_vol*mu_e #g/cm^3
@@ -18,8 +20,6 @@ def entropy(T, rho_e):
 	return T/pow(rho_e, 2/3.) 
 
 Kmw = np.array([entropy(Tmw[elt].in_units('keV')*units.keV, rho_g_vol[elt]/(m_p*units.g)) for elt in range(len(Tmw))])
-profilelist = {r'K/K$_{500}$':Kmw, r'$\rho/\rho_{crit}$':rho_g_vol, r'T/T$_{500}$':Tmw}#, 'precip':-precip}
-norms = {r'K/K$_{500}$':K500, r'$\rho/\rho_{crit}$':rho_crit_a, r'T/T$_{500}$':kT500s}#, 'precip':None}
 T500s = h.reverse_property_cascade('T500mw')[0]*units.keV
 cs = np.sqrt((T500s/(mu*constants.m_p)).to('kpc**2 yr**-2'))
 
@@ -27,6 +27,9 @@ bh = h['BH_central'][0]
 bh_mdot = bh.reverse_property_cascade('BH_mdot_ave')[0]
 bh_ts = bh.calculate_for_progenitors('t()')[0]
 bh_mass = bh.reverse_property_cascade('BH_mass')[0]
+
+profilelist = {r'K/K$_{500}$':Kmw, r'$\rho/\rho_{crit}$':rho_g_vol, r'T/T$_{500}$':Tmw}#, 'precip':-precip}
+norms = {r'K/K$_{500}$':K500, r'$\rho/\rho_{crit}$':rho_crit_a, r'T/T$_{500}$':kT500s}#, 'precip':None}
 
 def Pbh():
 	eps = 0.02
@@ -267,7 +270,7 @@ def bcg_history(interactive=True, prop = 'sfh'):
 		ymin = 1
 		ymax = 50
 	elif prop == 'precip':
-		precip = -1*h.reverse_property_cascade('colder_mdot_in_nosubs')[0]
+		precip = h.reverse_property_cascade('colder_mdot_in_nosubs')[0]
 		r = 10**np.linspace(0,3,100)
 		ind1 = np.argmin(abs(r - 5))
 		ind2 = np.argmin(abs(r - 30))

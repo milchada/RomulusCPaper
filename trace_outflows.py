@@ -14,7 +14,6 @@ import gc
 
 plot_rain = False
 plot_zoom = True
-plot_mixing = False
 cmap = cm.get_cmap('magma')
 allgas = True
 		
@@ -46,7 +45,7 @@ def entropy(ptcls, allgas=False):
 	if allgas:
 		n_cc = ptcls['ne']*ptcls.g['rho'].in_units('m_p cm**-3')
 	else:
-		n_cc = ptcls.g['rho'].in_units('m_p cm**-3')
+		n_cc = ptcls.g['rho'].in_units('m_p cm**-3')/ptcls.g['mu']
 	entropy = T_kev*pow(n_cc,-2./3)
 	entropy.units = 'keV cm^2'
 	return entropy #*weight
@@ -130,17 +129,11 @@ unique_snaps.sort()
 peak_bh_activity = np.argmin(abs(np.array(steptime) - 6))
 
 #bh_activity()
-if plot_rain or plot_mixing:
+if plot_rain:
 	merger_sim = pynbody.load('/nobackupp2/mtremmel/Romulus/h1.cosmo50/h1.cosmo50PLK.1536gst1bwK1BH.003360')
 	if plot_rain:
 		subhalo_ptcls = merger_sim.halos(dosort=True).load_copy(2)
 		subhalo_indices = subhalo_ptcls.g['iord']
-	if plot_mixing:
-		halo_ptcls = merger_sim.halos(dosort = True).load_copy(1)
-		halo_ptcls.physical_units()
-		pynbody.analysis.halo.center(halo_ptcls.g, mode='ssc')
-		core_ind = filter(halo_ptcls, radius='30 kpc')
-
 	del(merger_sim, halo_ptcls)# = None #clear cache
 
 if plot_zoom:
@@ -153,18 +146,18 @@ if plot_zoom:
     del(active_snap)# = None #clear cache
     gc.collect()
 
-def rain(active_snap, halo_ptcls,  snapnum, allgas, nosubs):
-	subhalo_ptcls = active_snap.g[(np.in1d(active_snap.g['iord'], subhalo_indices))]
-	subhalo_ptcls.physical_units()
-	snap_halo = steps[snapnum].halos[halonum]
-	#subhalo_ptcls['pos'] -= snap_halo['shrink_center']
-	agn_ptcls = None
-	plot(halo_ptcls, agn_ptcls,snapnum, ymin = -2, 
-		ymax = max(np.log10(entropy(halo_ptcls.g, allgas=allgas))), nbins=50, subhalo_ptcls=subhalo_ptcls, 
-		track_agn=False, track_subhalo_ptcls = True, nosubs=nosubs)
-	print "rain plot done"
-	del(subhalo_ptcls) # = None
-	gc.collect()
+# def rain(active_snap, halo_ptcls,  snapnum, allgas, nosubs):
+# 	subhalo_ptcls = active_snap.g[(np.in1d(active_snap.g['iord'], subhalo_indices))]
+# 	subhalo_ptcls.physical_units()
+# 	snap_halo = steps[snapnum].halos[halonum]
+# 	#subhalo_ptcls['pos'] -= snap_halo['shrink_center']
+# 	agn_ptcls = None
+# 	plot(halo_ptcls, agn_ptcls,snapnum, ymin = -2, 
+# 		ymax = max(np.log10(entropy(halo_ptcls.g, allgas=allgas))), nbins=50, subhalo_ptcls=subhalo_ptcls, 
+# 		track_agn=False, track_subhalo_ptcls = True, nosubs=nosubs)
+# 	print "rain plot done"
+# 	del(subhalo_ptcls) # = None
+# 	gc.collect()
 
 def zoom(halo_ptcls, snapnum, halonum, snap, allgas, nosubs, cumul_indices=cumul_indices):
 	new_indices = filter(halo_ptcls)
