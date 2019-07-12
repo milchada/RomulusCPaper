@@ -83,7 +83,7 @@ def match_gas_ind(original_core_ind, step_core_ptcls):
 	return xind 
 	
 def collect_ptcls(snapnum,filename):
-	core_ind, core_gas = select_core_particles(snapnums[snapnum], radius)
+	core_ind, core_gas = select_core_particles(snapnums[snapnum-1], radius)
 	core_gas.physical_units()
 	print "halo particles loaded"
 	Ks = np.empty([len(core_ind), 6]) #this array stores the properties of the particles that are in the core at time t1
@@ -101,7 +101,7 @@ def collect_ptcls(snapnum,filename):
 
 	#load the next snapshot
 
-	halo_ptcls = pynbody.load(unique_snaps[snapnums[snapnum-1]]).halos(dosort=True).load_copy(1)
+	halo_ptcls = pynbody.load(unique_snaps[snapnums[snapnum]]).halos(dosort=True).load_copy(1)
 	if nosubs:
 		halo_ptcls = halo_ptcls[halo_ptcls['amiga.grp'] == 1]
 	halo_ptcls.physical_units()
@@ -129,7 +129,7 @@ if __name__=="__main__":
 	from multiprocessing import Process
 	proc = []
 	for snapind in snapinds:
-		filename = '%0.2f-%0.2f_Ks_histogram_%d_kpc' % (keytimes[snapind], keytimes[snapind-1], rcore)
+		filename = '%0.2f-%0.2f_Ks_histogram_%d_kpc' % (keytimes[snapind-1], keytimes[snapind], rcore)
 		print snapind, filename
 		p = Process(target = collect_ptcls, args=(snapind, filename))
 		p.start()
