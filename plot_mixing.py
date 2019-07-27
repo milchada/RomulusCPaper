@@ -127,7 +127,7 @@ def plotall():
         log=True, ret_cbar = True)
     
     for file in files[:-1]:
-        plot(file, rcore=30, ind1=4,ind2=5, xmin=0, xmax=20,ymin=0, ymax=100, 
+        plot(file, rcore=30, ind1=4,ind2=5, xmin=0, xmax=30,ymin=0, ymax=100, 
             m=m_r, qty='r', unit = r'kpc')
         plot(file, rcore=30, ind1=2,ind2=3, xmin=-2,xmax=2, ymin=-2,ymax=2, 
             log=True, m=m_K)
