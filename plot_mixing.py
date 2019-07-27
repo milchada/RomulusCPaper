@@ -63,10 +63,12 @@ def plot(file, rcore, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=Non
         plt.xscale('log')
         plt.yscale('log')
         plt.ylim(10**ymin, 10**ymax)
+        kmin = 10**xmin
     else:
         binned = binned_statistic(Ks[:,ind1], Ks[:,ind2], bins = nbins, range = (xmin, xmax))   
         x = binned.bin_edges[:-1]
         plt.ylim(ymin, ymax)
+        kmin = xmin
     median = []
     min = []
     max = []
@@ -74,9 +76,9 @@ def plot(file, rcore, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=Non
     for i in range(nbins):
         #i gotta get rid of the empty values 
         K2 = Ks[:,ind2]
-        mass = Ks[:,1][K2 > xmin]
-        binnum = binned.binnumber[K2 > xmin]
-        K2 = K2[K2 > xmin] 
+        mass = Ks[:,1][K2 > kmin]
+        binnum = binned.binnumber[K2 > kmin]
+        K2 = K2[K2 > kmin] 
         median.append(np.nanpercentile(K2[ binnum == i], 50))
         min.append(np.nanpercentile(K2[binnum == i], 25))
         max.append(np.nanpercentile(K2[binnum == i], 75))
