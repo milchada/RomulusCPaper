@@ -72,10 +72,15 @@ def plot(file, rcore, ind1=4,ind2=5, ret_cbar=False, m=None, xmin=None, xmax=Non
     max = []
     mcells = []
     for i in range(nbins):
-        median.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 50))
-        min.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 25))
-        max.append(np.nanpercentile(Ks[:,ind2][binned.binnumber == i], 75))
-        mcells.append(np.nansum(Ks[:,1][binned.binnumber == i]))
+        #i gotta get rid of the empty values 
+        K2 = Ks[:,ind2]
+        mass = Ks[:,1][K2 > xmin]
+        binnum = binned.binnumber[K2 > xmin]
+        K2 = K2[K2 > xmin] 
+        median.append(np.nanpercentile(K2[ binnum == i], 50))
+        min.append(np.nanpercentile(K2[binnum == i], 25))
+        max.append(np.nanpercentile(K2[binnum == i], 75))
+        mcells.append(np.nansum(mass[binnum == i]))
 
     median = np.array(median)
     min = np.array(min)
