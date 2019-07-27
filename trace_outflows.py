@@ -70,7 +70,7 @@ def plot(halo_ptcls, agn_ptcls, snapnum, xmin=0, xmax=np.log10(500),
 		np.log10(entropy(halo_ptcls.g)),range=[[xmin, xmax],[ymin, ymax]], bins=nbins, weights = halo_ptcls.g['mass'])
 
 	X, Y = np.meshgrid(xedges, yedges)
-	hist = np.log10(heatmap.T/sum(sum(heatmap.T))) #dividing by sum normalizes probability at each r
+	hist = np.log10(heatmap.T/sum(heatmap.T)) #dividing by sum normalizes probability at each r
 	plt.pcolormesh(X, Y, hist, vmin=-6.5, vmax=-2.5, cmap='gray_r')
 	print "colormesh done"
 	
