@@ -113,15 +113,15 @@ peak_bh_activity = np.argmin(abs(np.array(steptime) - 6))
 
 #bh_activity()
 
-if plot_zoom:
-    active_snap = pynbody.load(unique_snaps[peak_bh_activity])
-    halo_ptcls = active_snap.halos(dosort = True).load_copy(1)
-    halo_ptcls.physical_units()
-    pynbody.analysis.halo.center(halo_ptcls.g, mode='ssc')
-    cumul_indices = filter(halo_ptcls)
-    print "indices collected"
-    del(active_snap)# = None #clear cache
-    gc.collect()
+
+active_snap = pynbody.load(unique_snaps[peak_bh_activity])
+halo_ptcls = active_snap.halos(dosort = True).load_copy(1)
+halo_ptcls.physical_units()
+pynbody.analysis.halo.center(halo_ptcls.g, mode='ssc')
+cumul_indices = filter(halo_ptcls)
+print "indices collected"
+del(active_snap)# = None #clear cache
+gc.collect()
 
 
 def zoom(halo_ptcls, snapnum, halonum, snap, nosubs, cumul_indices=cumul_indices):
@@ -174,8 +174,7 @@ def trace_outflows(nosubs=True):
 		print "halo loaded"
 		halo_ptcls['pos'] -= snap_halo['shrink_center']
 		# # #2: track growing wind 
-		if plot_zoom:
-			zoom(halo_ptcls, snapnum, halonum, snap, nosubs, cumul_indices=cumul_indices)
+		zoom(halo_ptcls, snapnum, halonum, snap, nosubs, cumul_indices=cumul_indices)
 
 		print "snap %d done" % snapnum
 		del(active_snap)
