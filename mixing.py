@@ -86,7 +86,7 @@ def collect_ptcls(snapnum,filename):
 	core_ind, core_gas = select_core_particles(snapnums[snapnum-1], radius)
 	core_gas.physical_units()
 	print "halo particles loaded"
-	Ks = np.empty([len(core_ind), 6]) #this array stores the properties of the particles that are in the core at time t1
+	Ks = np.zeros([len(core_ind), 6]) #this array stores the properties of the particles that are in the core at time t1
 	# Ks.dtype.names = ['ind','mass','Ki','Kf','ri','rf']
 	Ks[:,0] = core_ind
 	Ks[:,1] = core_gas['mass'].in_units('Msol')
