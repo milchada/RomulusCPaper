@@ -113,7 +113,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
                 print "Rotated about x axis 90deg"
         if y:
                 filename = 'sloshing_proj_xz_'+str(t2)+'_Gyr.png'
-        if not glob.glob(filename):
+                if not glob.glob(filename):
                         ent = image(h1ptcls.g, width=width,qty='entropy', qtytitle=r'K',
                                 title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
                         h2pos = h2ptcls['pos'][sort][:ncoreptcl]
