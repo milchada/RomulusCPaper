@@ -65,7 +65,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
         print "entropy calculated"
 
         if x:
-        ent = image(h1ptcls.g, width=width,qty='entropy', qtytitle=r'K',
+                ent = image(h1ptcls.g, width=width,qty='entropy', qtytitle=r'K',
                         title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
                 h2pos = h2pos[sort][:ncoreptcl]
                 plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
