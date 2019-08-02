@@ -65,45 +65,45 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
         print "entropy calculated"
 
         if x:
-                ent = image(h1ptcls.g, width=width,qty='entropy', qtytitle=r'K',
-                                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
-                        h2pos = h2pos[sort][:ncoreptcl]
-                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
-                        plt.xlim(-width/2,width/2)
-                        plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Kproj_xy_%0.2f_Gyr.png' % t2)
-                        plt.clf()
-                        ent = None
+        ent = image(h1ptcls.g, width=width,qty='entropy', qtytitle=r'K',
+                        title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+                h2pos = h2pos[sort][:ncoreptcl]
+                plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_Kproj_xy_%0.2f_Gyr.png' % t2)
+                plt.clf()
+                ent = None
 
-                        pressure = image(h1ptcls.g, width=width,qty='p', qtytitle=r'P',
-                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
-                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
-                        plt.xlim(-width/2,width/2)
-                        plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Pproj_xy_%0.2f_Gyr.png' % t2)
-                        plt.clf()
-                        pressure = None
+                pressure = image(h1ptcls.g, width=width,qty='p', qtytitle=r'P',
+                        title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_Pproj_xy_%0.2f_Gyr.png' % t2)
+                plt.clf()
+                pressure = None
 
-                        rho = image(h1ptcls.g, width=width,qty='rho', qtytitle=r'$\rho$',
-                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
-                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
-                        plt.xlim(-width/2,width/2)
-                        plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_rhoproj_xy_%0.2f_Gyr.png' % t2)
-                        plt.clf()
-                        rho = None
+                rho = image(h1ptcls.g, width=width,qty='rho', qtytitle=r'$\rho$',
+                        title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_rhoproj_xy_%0.2f_Gyr.png' % t2)
+                plt.clf()
+                rho = None
 
-                        temp = image(h1ptcls.g, width=width,qty='kT', qtytitle=r'T',
-                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
-                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
-                        plt.xlim(-width/2,width/2)
-                        plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Tproj_xy_%0.2f_Gyr.png' % t2)
-                        plt.clf()
-                        temp = None
+                temp = image(h1ptcls.g, width=width,qty='kT', qtytitle=r'T',
+                        title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_Tproj_xy_%0.2f_Gyr.png' % t2)
+                plt.clf()
+                temp = None
 
-                        print "xy finished"
-                        h2pos = None
+                print "xy finished"
+                h2pos = None
         else:
                 h2pos = None
 
@@ -125,7 +125,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
                         ent = None
 
                         pressure = image(h1ptcls.g, width=width,qty='p', qtytitle=r'P',
-                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
@@ -134,7 +134,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
                         pressure = None
 
                         rho = image(h1ptcls.g, width=width,qty='rho', qtytitle=r'$\rho$',
-                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
@@ -143,7 +143,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
                         rho = None
 
                         temp = image(h1ptcls.g, width=width,qty='kT', qtytitle=r'T',
-                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
@@ -172,7 +172,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
                         ent = None
 
                         pressure = image(h1ptcls.g, width=width,qty='p', qtytitle=r'P',
-                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
@@ -181,7 +181,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
                         pressure = None
 
                         rho = image(h1ptcls.g, width=width,qty='rho', qtytitle=r'$\rho$',
-                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
@@ -190,7 +190,7 @@ def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z
                         rho = None
 
                         temp = image(h1ptcls.g, width=width,qty='kT', qtytitle=r'T',
-                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
