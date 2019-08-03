@@ -1,183 +1,279 @@
-import glob
-import numpy as np 
+#trace_outflows.py
+
+import numpy as np
+import tangos
+import pynbody
 import matplotlib
 if __name__=="__main__":
-	matplotlib.use('Agg') #makes sure matplotlib doesn't look for a display when plotting
-
+        matplotlib.use('Agg') #makes sure matplotlib doesn't look for a display when plottin
+from tangos.examples import mergers
 import matplotlib.pylab as plt
-import tangos
-import pynbody 
-from pynbody.plot import image
-from matplotlib.pylab import cm
-from scipy.stats import binned_statistic
 import gc
-
-cmap = cm.get_cmap('magma')
-allgas = True
-		
-#load particles
-basename = '/nobackupp2/mtremmel/Romulus/'
-datadir = basename+'h1.cosmo50/h1.cosmo50PLK.1536gst1bwK1BH.004096'
+from pynbody.plot import image
+from matplotlib import cm, colors
 
 #load halo database
-db = tangos.get_simulation('h1.cosmo50')
-steps = db.timesteps
+sim = tangos.get_simulation('h1.cosmo50')
+steps = sim.timesteps
 stepname = [step.relative_filename for step in steps]
 steptime = [step.time_gyr for step in steps]
 stepnum = -1
 halonum = 0 #generalize these later
 halo = steps[stepnum].halos[halonum]
-bh = halo['BH_central'][0]
-halonum_pb = halo.halo_number
-zs = np.array(halo.calculate_for_progenitors("z()")[0])
-#total mass is in Msol
 
-#average profiles
-Tmw=halo.calculate_for_progenitors('Tmw_tcut_profile')[0]*pynbody.units.k.in_units("keV K**-1") ##converting k_B from J/K to keV/K, m_p from kg to g
-rho_e_mw=halo.calculate_for_progenitors('rho_e_vol_profile')[0]
-entropy_mw = Tmw*(rho_e_mw**(-2./3))
-profiletime = halo.calculate_for_progenitors('t()')[0]
+mtree = mergers.get_mergers_of_major_progenitor(halo)
 
-def entropy(ptcls):
-	T_kev = ptcls['temp'].in_units('K')*pynbody.units.k.in_units('keV K**-1')
-	if allgas:
-		n_cc = ptcls['ne']*ptcls.g['rho'].in_units('m_p cm**-3')
-	else:
-		n_cc = ptcls.g['rho'].in_units('m_p cm**-3')/ptcls.g['mu']
-	entropy = T_kev*pow(n_cc,-2./3)
-	entropy.units = 'keV cm^2'
-	return entropy #*weight
+basename = '/nobackupp2/mtremmel/Romulus/'
+datadir = basename+'h1.cosmo50/h1.cosmo50PLK.1536gst1bwK1BH.004096'
 
-def ind(z):
-	return np.argmin(abs(zs - z))
-
-#select particles within certain distance of halo center
-def filter(snap, halo_center=[0,0,0], radius='1 kpc'):
-	snap.physical_units()
-	spfilter = pynbody.filt.Sphere(radius, halo_center) & (pynbody.filt.FamilyFilter(pynbody.family.gas))# | pynbody.filt.FamilyFilter(pynbody.family.star))
-	sphere = snap[spfilter]
-	return sphere.g['iord']
-
-def plot(halo_ptcls, agn_ptcls, snapnum, xmin=0, xmax=np.log10(500),
-	ymin=-4.5, ymax=4, vmin=-6.5, vmax=-2.5, nbins=50, nosubs=True):
-	fig, ax = plt.subplots()
-	#get time stamp
-	snap_halo = steps[snapnum].halos[halonum]
-	tsnap = snap_halo.timestep.time_gyr
-	
-	#make histogram
-	heatmap, xedges, yedges = np.histogram2d(np.log10(abs(halo_ptcls.g['r'])), 
-		np.log10(entropy(halo_ptcls.g)),range=[[xmin, xmax],[ymin, ymax]], bins=nbins, weights = halo_ptcls.g['mass'])
-
-	X, Y = np.meshgrid(xedges, yedges)
-	hist = np.log10(heatmap.T/sum(heatmap.T)) #dividing by sum normalizes probability at each r
-	plt.pcolormesh(X, Y, hist, vmin=-6.5, vmax=-2.5, cmap='gray_r')
-	print "colormesh done"
-	
-	snap_halo = heatmap = X = Y = None #clear cache
-	del(halo_ptcls)
-	gc.collect()
-	
-	plt.colorbar()
-	
-	#track AGN
-	agn_r = np.log10(abs(agn_ptcls.g['r']))
-	plt.scatter(agn_r,np.log10(entropy(agn_ptcls.g)), color='r')
-	print "AGN scatter done"
-	
-	snap_entropy = entropy_mw[np.argmin(abs(np.array(profiletime)-tsnap))] #because profiles calculated backwards from z=0
-	profile_mask=np.ma.masked_invalid(snap_entropy).mask
-	profile_r = (np.arange(len(snap_entropy))+1)/10.
-	profile_r = np.ma.masked_array(profile_r, profile_mask).compressed()
-	snap_entropy = np.ma.masked_array(snap_entropy, profile_mask).compressed()
-	smooth = binned_statistic(np.log10(profile_r), snap_entropy, range=(0,np.log10(500)), bins=100)
-	plt.plot(smooth.bin_edges[0:-1], np.log10(smooth.statistic), c=cmap(0.25), lw=2)
-	print "overplot done"
-	
-	return fig, ax
-
+import glob
 snaps = glob.glob(datadir.split('.004096')[0]+'*')
 unique_snaps = []
 for snap in snaps:
-	try:
-		snap.split('1536gst1bwK1BH.')[1].split('.')[1]
-	except IndexError:
-		try: 
-			float(snap.split('1536gst1bwK1BH.')[1].split('.')[0])
-			unique_snaps.append(snap)
-		except ValueError:
-			continue
+        try:
+                snap.split('1536gst1bwK1BH.')[1].split('.')[1]
+        except IndexError:
+                try:
+                        float(snap.split('1536gst1bwK1BH.')[1].split('.')[0])
+                        unique_snaps.append(snap)
+                except ValueError:
+                        continue
 
 unique_snaps.sort()
-peak_bh_activity = np.argmin(abs(np.array(steptime) - 6))
 
-#bh_activity()
+def plot(h1ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True, width = 1700, subhalo=False, h2ptcls=h2ptcls, suffix=''):
+        widthkpc = str(width)+' kpc'
+        #for test only 
+        ncoreptcl = 1000
+        t2 = steptime[merger_ind + step]
+        print "t = %.2f Gyr" % t2
+        
+        h1ptcls = h1ptcls[pynbody.filt.BandPass('z',"-1 Mpc","1 Mpc")] 
+        if subhalo:
+                h2pos = h2ptcls['pos']
+                print "positions gathered"
+                sort = np.argsort(np.linalg.norm(h2pos, axis=1))
+                h2pos = h2ptcls['pos'][sort][:ncoreptcl]
+        print "particles closest to halo 1 collected"
+
+        h1ptcls['kT'] = h1ptcls.g['temp']*pynbody.units.k.in_units('keV K**-1')
+        h1ptcls['kT'].units = 'keV'
+
+        h1ptcls['entropy'] = h1ptcls.g['kT'] * pow(h1ptcls['ne']*h1ptcls.g['rho'].in_units('m_p cm**-3'), -2./3)
+        h1ptcls['entropy'].units = 'keV cm**2'
+        print "entropy calculated"
+
+        if x:
+                ent = image(h1ptcls, width=widthkpc,qty='entropy', qtytitle=r'K',
+                                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+                if subhalo:
+                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_Kproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.clf()
+                del(ent)
+                gc.collect()
+
+                pressure = image(h1ptcls, width=widthkpc,qty='p', qtytitle=r'P', units='keV cm**-3',
+                        title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                if subhalo:
+                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_Pproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.clf()
+                del(pressure)
+                gc.collect()
+
+                rho = image(h1ptcls, width=widthkpc,qty='rho', qtytitle=r'$\rho$',
+                        title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                if subhalo:
+                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_rhoproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.clf()
+                del(rho)
+                gc.collect()
+
+                temp = image(h1ptcls, width=widthkpc,qty='kT', qtytitle=r'T',
+                        title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                if subhalo:
+                        plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
+                plt.xlim(-width/2,width/2)
+                plt.ylim(-width/2,width/2)
+                plt.savefig('sloshing_Tproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.clf()
+                del(temp)
+                gc.collect()
 
 
-active_snap = pynbody.load(unique_snaps[peak_bh_activity])
-halo_ptcls = active_snap.halos(dosort = True).load_copy(1)
-halo_ptcls.physical_units()
-pynbody.analysis.halo.center(halo_ptcls.g, mode='ssc')
-cumul_indices = filter(halo_ptcls)
-print "indices collected"
-del(active_snap)# = None #clear cache
-gc.collect()
+        if y or z:
+                h1ptcls.rotate_x(90) #so now x-z plane instead of x-y
+                print "Rotated about x axis 90deg"
+        if y:
+                filename = 'sloshing_proj_xz_'+str(t2)+'_Gyr'+suffix+'.png'
+                if not glob.glob(filename):
+                        ent = image(h1ptcls, width=widthkpc,qty='entropy', qtytitle=r'K',
+                                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+                        if subhalo:
+                                plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_Kproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(ent)
+                        gc.collect()
 
+                        pressure = image(h1ptcls, width=widthkpc,qty='p', qtytitle=r'P', units='keV cm**-3',
+                                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                        if subhalo:
+                                plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_Pproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(pressure)
+                        gc.collect()
 
-def zoom(halo_ptcls, snapnum, halonum, snap, nosubs, cumul_indices=cumul_indices):
-	new_indices = filter(halo_ptcls)
-	cumul_indices = np.unique(np.concatenate([cumul_indices, new_indices]))
-	agn_cumul_ptcls = halo_ptcls.g[(np.in1d(halo_ptcls.g['iord'], cumul_indices))]
-	agn_cumul_ptcls.physical_units()
+                        rho = image(h1ptcls, width=widthkpc,qty='rho', qtytitle=r'$\rho$',
+                                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                        if subhalo:
+                                plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_rhoproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(rho)
+                        gc.collect()
 
-	fig, ax = plot(halo_ptcls, agn_cumul_ptcls, snapnum, xmin = 0, xmax = np.log10(2000), ymin = -2, 
-		ymax = 3, nbins=50, nosubs=nosubs)
+                        temp = image(h1ptcls, width=widthkpc,qty='kT', qtytitle=r'T',
+                                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                        if subhalo:
+                                plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_Tproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(temp)
+                        gc.collect()
 
-	suffix=''
+                        print "xz finished"
 
-	if nosubs:
-		suffix += '_nosubs'
+        if z:
+                filename = 'sloshing_proj_xz_'+str(t2)+'_Gyr'+suffix+'.png'
+                if not glob.glob(filename):
+                        h1ptcls.rotate_y(90) #so now y-z plane instead of x-z
+                        print "Rotated about y axis 90deg"
+                        
+                        ent = image(h1ptcls, width=widthkpc,qty='entropy', qtytitle=r'K',
+                                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+                        if subhalo:
+                                plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_Kproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(ent)
+                        gc.collect()
 
-	xticks = np.array([5e1, 1e2, 5e2, 1e3])
-	plt.xticks(np.log10(xticks), xticks)
-	plt.xlabel("R (kpc)")
-	plt.ylabel(r"K (KeV cm$^2$)")
+                        pressure = image(h1ptcls, width=widthkpc,qty='p', qtytitle=r'P', units='keV cm**-3',
+                                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                        if subhalo:
+                                plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_Pproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(pressure)
+                        gc.collect()
 
-	yticks = np.array([0.01, 0.1, 1, 10, 1e2, 1e3])
-	plt.yticks(np.log10(yticks), yticks)
-	plt.xlim(xmin, np.log10(2000))
-	plt.ylim(-2, np.log10(500))
-	plt.text(0.2, np.log10(2000),'%0.2f Gyr' % tsnap)
-	plt.savefig('halo_%d_snap_%d_rain%s.png' % (halonum, snapnum, suffix))
+                        rho = image(h1ptcls, width=widthkpc,qty='rho', qtytitle=r'$\rho$',
+                                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                        if subhalo:
+                                plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_rhoproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(rho)
+                        gc.collect()
 
-	print "zoom done"
+                        temp = image(h1ptcls, width=widthkpc,qty='kT', qtytitle=r'T',
+                                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                        if subhalo:
+                                plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
+                        plt.xlim(-width/2,width/2)
+                        plt.ylim(-width/2,width/2)
+                        plt.savefig('sloshing_Tproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.clf()
+                        del(temp)
+                        gc.collect()
 
-	del(agn_cumul_ptcls)
-	#del(subhalo_ptcls)# = None
-	gc.collect()
+                        print "yz finished"
 
+def offset(merger=5, tmin = 11.64, startstep = 0, endstep=4, width = 1700, subhalo=False, suffix=''):
 
-#if __name__=="__main__":
-def trace_outflows(nosubs=True):
-	#for snap in unique_snaps[57:]:
-	for snapnum in [28, 41, 54,57, 60, 68]:#keysnaps: 
-		#snapnum = unique_snaps.index(snap)
-		snap = unique_snaps[snapnum]
-		snap_halo = steps[snapnum].halos[halonum]
-		stime = snap_halo.timestep.time_gyr
-		print "t = %0.2f Gyr" % stime
-		active_snap = pynbody.load(snap)
-		halo_ptcls = active_snap.halos(dosort=True).load_copy(halonum_pb)
-		if nosubs:
-			halo_ptcls = halo_ptcls[halo_ptcls['amiga.grp'] == 1]
-		halo_ptcls.physical_units()
-		print "halo loaded"
-		halo_ptcls['pos'] -= snap_halo['shrink_center']
-		# # #2: track growing wind 
-		zoom(halo_ptcls, snapnum, halonum, snap, nosubs, cumul_indices=cumul_indices)
+        h1, h2 = mtree[2][merger]
+        while h1.timestep.time_gyr < tmin:
+                h1 = h1.next
+                h2 = h2.next
+        merger_snap = str(basename+h2.path.split('/halo')[0])
+        merger_sim = pynbody.load(merger_snap)
+        "Merger snap loaded"
+        h = merger_sim.halos()
+        print "Halo cat loaded "
+        merger_ind = steptime.index(h1.timestep.time_gyr)
 
-		print "snap %d done" % snapnum
-		del(active_snap)
-		del(halo_ptcls)
-		gc.collect()
+        if not startstep:
+                h1ptcls = h1.load().g
+                h1ptcls.physical_units()
+                # h2ptcls = h2.load().g
+                # h2ptcls.physical_units()
 
+                h1ptcls['pos'] -= h1['shrink_center']
+                # h2ptcls['pos'] -= h1['shrink_center']
+                
+                plot(h1ptcls, h2ptcls, merger_ind, 0, x=False, width=widthkpc, subhalo=subhalo, suffix=suffix)
+
+        i= 0
+        while i < startstep:
+                h1 = h1.next
+                i += 1
+
+        for step in xrange(max(startstep,1), endstep):
+
+                plt.clf()
+                current_snap = pynbody.load(unique_snaps[merger_ind+step])
+                print "Snap %d loaded" % step
+                
+
+                h1ptcls = h1.load().g
+                h1ptcls.physical_units()
+                h1ptcls['pos'] -= h1['shrink_center']
+
+                if subhalo:
+                        b = pynbody.bridge.OrderBridge(merger_sim, current_snap)
+                        print "Bridge made"
+                        h2ptcls = b(h[h2.halo_number])
+                        print("particles collected")
+                        h2ptcls.physical_units()
+                        h2ptcls['pos'] -= h1['shrink_center']
+                        
+                print( "particles centered on halo 1")
+
+                if subhalo:
+                        plot(h1ptcls, merger_ind, step, x=False, width=width, subhalo=True, h2ptcls=h2ptcls)
+                        del(current_snap, h1ptcls, h2ptcls, b)
+                else:
+                        plot(h1ptcls, merger_ind, step, x=False, width=width)
+                        del(current_snap, h1ptcls)
+                
+                gc.collect()
+                print "Step %d done" % step
+                h1 = h1.next
+
+if __name__=="__main__":
+        offset(5, 11.64, startstep=4)
+        offset(5, 11.64, startstep=0,width=200, suffix='zoom')
