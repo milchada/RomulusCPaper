@@ -46,7 +46,7 @@ def plot(h1ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True, wi
         #for test only 
         ncoreptcl = 1000
         t2 = steptime[merger_ind + step]
-        print "t = %.2f Gyr" % t2
+        print "t = %.2f Gyr" 
         
         h1ptcls = h1ptcls[pynbody.filt.BandPass('z',"-1 Mpc","1 Mpc")] 
         if subhalo:
@@ -65,45 +65,45 @@ def plot(h1ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True, wi
 
         if x:
                 ent = image(h1ptcls, width=widthkpc,qty='entropy', qtytitle=r'K',
-                                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+                                title='%0.2f Gyr' , cmap=cm.magma, vmin=1, vmax=1e3)
                 if subhalo:
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                 plt.xlim(-width/2,width/2)
                 plt.ylim(-width/2,width/2)
-                plt.savefig('sloshing_Kproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.savefig('sloshing_Kproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                 plt.clf()
                 del(ent)
                 gc.collect()
 
                 pressure = image(h1ptcls, width=widthkpc,qty='p', qtytitle=r'P', units='keV cm**-3',
-                        title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                        title='%0.2f Gyr' , cmap=cm.viridis, vmin=1e-4, vmax=1)
                 if subhalo:
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                 plt.xlim(-width/2,width/2)
                 plt.ylim(-width/2,width/2)
-                plt.savefig('sloshing_Pproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.savefig('sloshing_Pproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                 plt.clf()
                 del(pressure)
                 gc.collect()
 
                 rho = image(h1ptcls, width=widthkpc,qty='rho', qtytitle=r'$\rho$',
-                        title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                        title='%0.2f Gyr' , cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
                 if subhalo:
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                 plt.xlim(-width/2,width/2)
                 plt.ylim(-width/2,width/2)
-                plt.savefig('sloshing_rhoproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.savefig('sloshing_rhoproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                 plt.clf()
                 del(rho)
                 gc.collect()
 
                 temp = image(h1ptcls, width=widthkpc,qty='kT', qtytitle=r'T',
-                        title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                        title='%0.2f Gyr' , cmap=cm.RdBu_r, vmin=0.1, vmax=10)
                 if subhalo:
                         plt.scatter(h2pos[:,0],h2pos[:,1],alpha=0.15, c='w')
                 plt.xlim(-width/2,width/2)
                 plt.ylim(-width/2,width/2)
-                plt.savefig('sloshing_Tproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                plt.savefig('sloshing_Tproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                 plt.clf()
                 del(temp)
                 gc.collect()
@@ -116,45 +116,45 @@ def plot(h1ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True, wi
                 filename = 'sloshing_proj_xz_'+str(t2)+'_Gyr'+suffix+'.png'
                 if not glob.glob(filename):
                         ent = image(h1ptcls, width=widthkpc,qty='entropy', qtytitle=r'K',
-                                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+                                title='%0.2f Gyr' , cmap=cm.magma, vmin=1, vmax=1e3)
                         if subhalo:
                                 plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Kproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_Kproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(ent)
                         gc.collect()
 
                         pressure = image(h1ptcls, width=widthkpc,qty='p', qtytitle=r'P', units='keV cm**-3',
-                                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                                title='%0.2f Gyr' , cmap=cm.viridis, vmin=1e-4, vmax=1)
                         if subhalo:
                                 plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Pproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_Pproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(pressure)
                         gc.collect()
 
                         rho = image(h1ptcls, width=widthkpc,qty='rho', qtytitle=r'$\rho$',
-                                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                                title='%0.2f Gyr' , cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
                         if subhalo:
                                 plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_rhoproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_rhoproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(rho)
                         gc.collect()
 
                         temp = image(h1ptcls, width=widthkpc,qty='kT', qtytitle=r'T',
-                                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                                title='%0.2f Gyr' , cmap=cm.RdBu_r, vmin=0.1, vmax=10)
                         if subhalo:
                                 plt.scatter(h2pos[:,0],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Tproj_xz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_Tproj_xz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(temp)
                         gc.collect()
@@ -168,45 +168,45 @@ def plot(h1ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True, wi
                         print "Rotated about y axis 90deg"
                         
                         ent = image(h1ptcls, width=widthkpc,qty='entropy', qtytitle=r'K',
-                                title='%0.2f Gyr' % t2, cmap=cm.magma, vmin=1, vmax=1e3)
+                                title='%0.2f Gyr' , cmap=cm.magma, vmin=1, vmax=1e3)
                         if subhalo:
                                 plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Kproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_Kproj_yz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(ent)
                         gc.collect()
 
                         pressure = image(h1ptcls, width=widthkpc,qty='p', qtytitle=r'P', units='keV cm**-3',
-                                title='%0.2f Gyr' % t2, cmap=cm.viridis, vmin=1e-4, vmax=1)
+                                title='%0.2f Gyr' , cmap=cm.viridis, vmin=1e-4, vmax=1)
                         if subhalo:
                                 plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Pproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_Pproj_yz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(pressure)
                         gc.collect()
 
                         rho = image(h1ptcls, width=widthkpc,qty='rho', qtytitle=r'$\rho$',
-                                title='%0.2f Gyr' % t2, cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
+                                title='%0.2f Gyr' , cmap=cm.plasma, units='Msol kpc^-3', vmin=5e3, vmax=5e7)
                         if subhalo:
                                 plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_rhoproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_rhoproj_yz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(rho)
                         gc.collect()
 
                         temp = image(h1ptcls, width=widthkpc,qty='kT', qtytitle=r'T',
-                                title='%0.2f Gyr' % t2, cmap=cm.RdBu_r, vmin=0.1, vmax=10)
+                                title='%0.2f Gyr' , cmap=cm.RdBu_r, vmin=0.1, vmax=10)
                         if subhalo:
                                 plt.scatter(h2pos[:,1],h2pos[:,2],alpha=0.15, c='w')
                         plt.xlim(-width/2,width/2)
                         plt.ylim(-width/2,width/2)
-                        plt.savefig('sloshing_Tproj_yz_%0.2f_Gyr'+suffix+'.png' % t2)
+                        plt.savefig('sloshing_Tproj_yz_'+str(t2)[:5]+'_Gyr'+suffix+'.png' )
                         plt.clf()
                         del(temp)
                         gc.collect()
