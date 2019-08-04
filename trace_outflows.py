@@ -41,7 +41,7 @@ for snap in snaps:
 
 unique_snaps.sort()
 
-def plot(h1ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True, width = 1700, subhalo=False, h2ptcls=h2ptcls, suffix=''):
+def plot(h1ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True, width = 1700, subhalo=False, h2ptcls=None, suffix=''):
         widthkpc = str(width)+' kpc'
         #for test only 
         ncoreptcl = 1000
@@ -235,7 +235,7 @@ def offset(merger=5, tmin = 11.64, startstep = 0, endstep=4, width = 1700, subha
                 h1ptcls['pos'] -= h1['shrink_center']
                 # h2ptcls['pos'] -= h1['shrink_center']
                 
-                plot(h1ptcls, h2ptcls, merger_ind, 0, x=False, width=widthkpc, subhalo=subhalo, suffix=suffix)
+                plot(h1ptcls, merger_ind, 0, x=False, width=width, subhalo=subhalo, suffix=suffix)
 
         i= 0
         while i < startstep:
@@ -255,15 +255,12 @@ def offset(merger=5, tmin = 11.64, startstep = 0, endstep=4, width = 1700, subha
 
                 if subhalo:
                         b = pynbody.bridge.OrderBridge(merger_sim, current_snap)
-                        print "Bridge made"
+                	print "Bridge made"
                         h2ptcls = b(h[h2.halo_number])
                         print("particles collected")
                         h2ptcls.physical_units()
                         h2ptcls['pos'] -= h1['shrink_center']
-                        
-                print( "particles centered on halo 1")
-
-                if subhalo:
+                	print( "particles centered on halo 1")
                         plot(h1ptcls, merger_ind, step, x=False, width=width, subhalo=True, h2ptcls=h2ptcls)
                         del(current_snap, h1ptcls, h2ptcls, b)
                 else:
