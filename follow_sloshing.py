@@ -27,21 +27,6 @@ mtree = mergers.get_mergers_of_major_progenitor(halo)
 basename = '/nobackupp2/mtremmel/Romulus/'
 datadir = basename+'h1.cosmo50/h1.cosmo50PLK.1536gst1bwK1BH.004096'
 
-import glob
-snaps = glob.glob(datadir.split('.004096')[0]+'*')
-unique_snaps = []
-for snap in snaps:
-	try:
-		snap.split('1536gst1bwK1BH.')[1].split('.')[1]
-	except IndexError:
-		try: 
-			float(snap.split('1536gst1bwK1BH.')[1].split('.')[0])
-			unique_snaps.append(snap)
-		except ValueError:
-			continue
-
-unique_snaps.sort()
-
 def plot(h1ptcls, h2ptcls, merger_ind, step, ncoreptcl = 1000, x=True, y=True, z=True):
 	t2 = steptime[merger_ind + step]
 	print "t = %.2f Gyr" % t2
