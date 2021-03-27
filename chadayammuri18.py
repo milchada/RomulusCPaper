@@ -4,11 +4,6 @@ from astropy import constants
 
 Ez = Planck15.efunc(zs)
 
-#kT500 is average of MW and EW values
-kT500s = (h.reverse_property_cascade('T500mw')[0] + h.reverse_property_cascade('T500ew')[0])/2.
-#P500, K500 from McDonald 2014 eq 4
-P500 = ng_500*kT500s
-K500 = kT500s*pow(ne_500,-2./3) 
 Tmw = h.reverse_property_cascade('Tmw_tcut_profile')[0]
 #Convert T to keV
 Tmw *= constants.k_B.to('keV K**-1').value 
@@ -19,8 +14,18 @@ rho_g_vol = m_p*rho_e_vol*mu_e #g/cm^3
 def entropy(T, rho_e):
 	return T/pow(rho_e, 2/3.) 
 
-Kmw = np.array([entropy(Tmw[elt].in_units('keV')*units.keV, rho_g_vol[elt]/(m_p*units.g)) for elt in range(len(Tmw))])
-T500s = h.reverse_property_cascade('T500mw')[0]*units.keV
+Kmw = np.array([entropy(Tmw[elt]*units.keV, rho_g_vol[elt]/(m_p*units.g)) for elt in range(len(Tmw))])
+Pmw = np.array([Tmw[elt]*units.keV*rho_g_vol[elt]/(m_p*units.g) for elt in range(len(Tmw))])
+
+def K500_McCarthy08(r500_ind, cummass_profile_ind): #self-similar scaling
+	m500 = cummass_profile_ind[r500_ind] #check that this is in Msun
+	fb = 0.16
+	return 2561 * pow(m500/1e15, 2./3) * pow(fb/.13, -2./3) #keV cm^2
+
+K500 = np.array([K500_McCarthy08(r500_ind(ind), cummass_profile[ind]) for ind in range(len(cummass_profile))])
+T500 = np.array([pow(ne_500[ind], 2./3)*K500[ind] for ind in range(len(K500))]) #keV 
+P500 = ng_500*T500
+
 cs = np.sqrt((T500s/(mu*constants.m_p)).to('kpc**2 yr**-2'))
 
 bh = h['BH_central'][0]
@@ -71,32 +76,37 @@ vdisps = h.reverse_property_cascade('v_disp_profile')[0]
 
 def profile_evolutions():
 	fig, ax = plt.subplots()
-	ax.yaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
-    ax.xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+	# ax.yaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+ #    ax.xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
 	#fig 4a
 	for pair in pairs:
-		profiles = profile_array(Kmw, pair[0], pair[1], ynorm = K500*(Ez**(2./3)))
+		profiles = profile_array(Kmw, pair[0], pair[1], ynorm = K500)#*(Ez**(2./3)))
 		plot_profile(profiles, color=color(pair[0]), norm=True, ax=ax)
 	plt.legend(loc='best')
-	plt.xlim(.003,2)
+	plt.xlim(.007,2)
 	plt.xlabel(r'R/R$_{500}$', fontsize=22)
-	plt.ylabel(r'K/K$_{500} \times E(z)^{2/3}$', fontsize=22)
+	plt.ylabel(r'K/K$_{500}$', fontsize=22) # \times E(z)^{2/3}
+	plt.xticks(fontsize=14)
+	plt.yticks(fontsize=14)
 	plt.xscale('log')
 	plt.yscale('log')
 	plt.ylim(1e-2, 10)
+	plt.tight_layout()
 	fig.savefig('entropy_evolution.png')
 	print('entropy profile done!')
 
 	fig, ax = plt.subplots()
-	ax.yaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
-    ax.xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+	# ax.yaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+ #    ax.xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
 	for pair in pairs:
-		profiles = profile_array(Tmw, pair[0], pair[1], ynorm = kT500s*(Ez**(-2./3)))
+		profiles = profile_array(Tmw, pair[0], pair[1], ynorm = T500)#*(Ez**(-2./3)))
 		plot_profile(profiles, color=color(pair[0]),ax=ax)
 	plt.legend(loc='best')
-	plt.xlim(.003,2)
+	plt.xlim(.007,2)
 	plt.xlabel(r'R/R$_{500}$', fontsize=22)
-	plt.ylabel(r'T/T$_{500}\times E(z)^{-2/3}$', fontsize=22)
+	plt.ylabel(r'T/T$_{500}$', fontsize=22) #\times E(z)^{-2/3}
+	plt.xticks(fontsize=14)
+	plt.yticks([0.3,.4,.6,1,2,3],['0.3','','','1.0','','3.0'],fontsize=14)
 	plt.xscale('log')
 	plt.yscale('log')
 	plt.ylim(.3, 3)
@@ -104,18 +114,21 @@ def profile_evolutions():
 	print('temperature profile done!')
 
 	fig, ax = plt.subplots()
-	ax.yaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
-    ax.xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+	# ax.yaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+ #    ax.xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
 	for pair in pairs:
-		profiles = profile_array(Pmw, pair[0], pair[1], ynorm = P500s*(Ez**(-2./3)))
+		profiles = profile_array(Pmw, pair[0], pair[1], ynorm = P500)#*(Ez**(-2./3)))
 		plot_profile(profiles, color=color(pair[0]),ax=ax)
 	plt.legend(loc='best')
-	plt.xlim(.003,2)
+	plt.xlim(.007,2)
 	plt.xlabel(r'R/R$_{500}$', fontsize=22)
-	plt.ylabel(r'P/T$_{500}\times E(z)^{-2/3}$', fontsize=22)
+	plt.ylabel(r'P/P$_{500}$', fontsize=22) #\times E(z)^{-2/3}
+	plt.xticks(fontsize=14)
+	plt.yticks(fontsize=14)
 	plt.xscale('log')
 	plt.yscale('log')
-	plt.ylim(.3, 3)
+	plt.ylim(1e-2, 2e2)
+	plt.tight_layout()
 	fig.savefig('pressure_evolution.png')
 	print('pressure profile done!')
 
@@ -126,7 +139,7 @@ def profile_evolutions():
 		profiles = profile_array(rho_g_vol, pair[0], pair[1], ynorm = rho_crit_a)
 		plot_profile(profiles, color=color(pair[0]), norm=True, ax=ax)
 	plt.legend(loc='best')
-	plt.xlim(.003,2)
+	plt.xlim(.007,2)
 	plt.xlabel(r'R/R$_{500}$', fontsize=22)
 	plt.ylabel(r'$\rho/\rho_{crit}$', fontsize=22)
 	plt.xscale('log')
@@ -209,7 +222,7 @@ def vdisp_vbulk_plot(xnorm=True, ynorm=True, vdisp=False, vbulk=False, Pnt=True)
 			plot_profile(Pnt_Ptot, color=color(pair[0]), norm=True, ax=ax2)
 
 	if Pnt:
-		r_r500c = np.linspace(.003,2,100)
+		r_r500c = np.linspace(.1,2,100)
 		r_r200m = r_r500c*.37 #r500c ~ 0.37r200m
 		nelson_fit = 1 - .452*(1+np.exp(-(r_r200m/.841)**1.628))
 		ax2.plot(r_r500c, nelson_fit, label='Nelson+ 2014',c='k')
