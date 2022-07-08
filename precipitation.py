@@ -13,6 +13,7 @@ zs = np.array(h.calculate_for_progenitors("z()")[0])
 ts = np.array(h.calculate_for_progenitors("t()")[0])
 #total mass is in Msol
 
+
 ind01 = np.argmin(abs(ts - 12.50)) #disruption end
 ind02 = np.argmin(abs(ts - 12)) # disruption start
 ind03 = np.argmin(abs(ts - 11.1)) #1st pericenter passage done
@@ -43,7 +44,7 @@ def precipitation(pg, std=False):
         cold_gas = cold_gas[cold_gas['vr'] < vdisp[i]]
         mdot = cold_gas['mass'] * cold_gas['vr'] / (pynbody.units.Unit("kpc")*drbins[i])
         out[i] = sum(mdot.in_units('Msol yr**-1'))
-    print "precipitation computed"
+    print( "precipitation computed")
     return out
 
 def precip_array(snap):
@@ -53,9 +54,9 @@ def precip_array(snap):
     pynbody.analysis.halo.center(halo_ptcls)
     halo_ptcls = halo_ptcls.g[pynbody.filt.LowPass('amiga.grp', 2)]
     halo_ptcls.g['entropy'] = entropy(halo_ptcls.g)
-    print "halo centred"
+    print( "halo centred")
     pg = pynbody.analysis.profile.Profile(halo_ptcls.g,xmin=1,xmax=1e3,type='log', nbins=100)
-    print "profile generated"
+    print( "profile generated")
     return precipitation(pg, std=True)
 
 if __name__ == "__main__":

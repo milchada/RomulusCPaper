@@ -65,13 +65,12 @@ def filter(snap=merger_sim,halo_center=[0,0,0], radius='1 kpc'):
 	# indices = sphere.get_index_list(snap)
 	return sphere.g['iord']
 
-def plot(halo_ptcls, agn_ptcls, snapnum, suffix='', xmin=0, xmax=np.log10(500),
+def plot(halo_ptcls, agn_ptcls, snap, suffix='', xmin=0, xmax=np.log10(500),
 	ymin=-4.5, ymax=4, yspace=20, nbins=50, overplot=False, subhalo_ptcls=None, 
 	track_agn = True, track_subhalo_ptcls = False):
 	plt.clf()
 	#get time stamp
-	snap_halo = steps[snapnum].halos[halonum]
-	tsnap = snap_halo.timestep.time_gyr
+	tsnap = step.time_gyr
 	#make histogram
 	heatmap, xedges, yedges = np.histogram2d(np.log10(abs(halo_ptcls.g['r'])), 
 		np.log10(entropy(halo_ptcls.g)),range=[[xmin, xmax],[ymin, ymax]], bins=nbins, weights = halo_ptcls.g['mass'])
@@ -79,7 +78,7 @@ def plot(halo_ptcls, agn_ptcls, snapnum, suffix='', xmin=0, xmax=np.log10(500),
 	X, Y = np.meshgrid(xedges, yedges)
 	hist = np.log10(heatmap.T/sum(sum(heatmap.T))) #dividing by sum normalizes probability at each r
 	plt.pcolormesh(X, Y, hist, vmin=-5.5, vmax=-1.5, cmap='gray')
-	print "colormesh done"
+	print( "colormesh done")
 	snap_halo = heatmap = X = Y = None #clear cache
 	del(halo_ptcls)
 	gc.collect()
@@ -88,11 +87,11 @@ def plot(halo_ptcls, agn_ptcls, snapnum, suffix='', xmin=0, xmax=np.log10(500),
 	if track_agn:
 		agn_r = np.log10(abs(agn_ptcls.g['r']))
 		plt.scatter(agn_r,np.log10(entropy(agn_ptcls.g)), color='r')
-		print "AGN scatter done"
+		print( "AGN scatter done")
 	if track_subhalo_ptcls:
 		subhalo_r = np.log10(abs(subhalo_ptcls.g['r']))
 		plt.scatter(subhalo_r, np.log10(entropy(subhalo_ptcls.g)), color='b', alpha=0.1)
-		print "subhalo scatter done"
+		print( "subhalo scatter done")
 	xticks = np.array([1,10,1e2,5e2])
 	plt.xticks(np.log10(xticks), xticks)
 	plt.xlabel("R (kpc)")
@@ -105,15 +104,15 @@ def plot(halo_ptcls, agn_ptcls, snapnum, suffix='', xmin=0, xmax=np.log10(500),
 		profile_r = np.ma.masked_array(profile_r, profile_mask).compressed()
 		snap_entropy = np.ma.masked_array(snap_entropy, profile_mask).compressed()
 		smooth = binned_statistic(np.log10(profile_r), snap_entropy, range=(0,np.log10(500)), bins=100)
-		plt.plot(smooth.bin_edges[0:-1], np.log10(smooth.statistic), c=cmap(0.25), lw=2)
-		print "overplot done"
+		plt.plot(smooth.bin_edges[0:-1], np.log10(smooth.statistic), c='cyan', lw=2)
+		print( "overplot done")
 
 	yticks = np.array([0.01,0.1,1,10,1e2,1e3])
 	plt.yticks(np.log10(yticks), yticks)
 	plt.xlim(xmin, np.log10(5e2))
 	plt.ylim(-2, np.log10(300))
 	plt.text(0.2, np.log10(2000),'%0.2f Gyr' % tsnap)
-	plt.savefig('halo_%d_snap_%d_rain%s.png' % (halonum, snapnum, suffix))
+	plt.savefig('halo_%d_%0.2fGyr_rain%s.png' % (halonum, tsnap, suffix))
 
 snaps = glob.glob(datadir.split('.004096')[0]+'*')
 unique_snaps = []
@@ -167,18 +166,15 @@ def rain(active_snap, halo_ptcls,  snapnum):
 	del(subhalo_ptcls) # = None
 	gc.collect()
 
-def zoom(halo_ptcls, steps, snapnum, halonum, snap, cumul_indices):
+def zoom(halo_ptcls, halonum, snap, cumul_indices):
 	new_indices = filter(halo_ptcls)
 	cumul_indices = np.unique(np.concatenate([cumul_indices, new_indices]))
 	agn_cumul_ptcls = halo_ptcls.g[(np.in1d(halo_ptcls.g['iord'], cumul_indices))]
 	agn_cumul_ptcls.physical_units()
-	#subhalo_ptcls = active_snap.g[(np.in1d(active_snap.g['iord'], subhalo_indices))]
-	#subhalo_ptcls.physical_units()
-	# print "wind indices collected"
-	plot(halo_ptcls, agn_cumul_ptcls, snapnum, xmin = 0, xmax = np.log10(2000), ymin = -2, 
+	plot(halo_ptcls, agn_cumul_ptcls, snap, xmin = 0, xmax = np.log10(2000), ymin = -2, 
 		ymax = 3, yspace=10,nbins=50, overplot=True, track_agn = True, 
 		track_subhalo_ptcls = False)
-	print "zoom done"
+	print( "zoom done")
 
 	del(agn_cumul_ptcls)
 	#del(subhalo_ptcls)# = None
@@ -188,16 +184,17 @@ def zoom(halo_ptcls, steps, snapnum, halonum, snap, cumul_indices):
 #if __name__=="__main__":
 def trace_outflows():
 	#for snap in unique_snaps[57:]:
-	for snapnum in [28, 41, 54,57]:#keysnaps: 
+	# for snapnum in [28, 41, 54,57]:#keysnaps: 
 		#snapnum = unique_snaps.index(snap)
-		snap = unique_snaps[snapnum]
-		snap_halo = steps[snapnum].halos[halonum]
-		stime = snap_halo.timestep.time_gyr
-		print "t = %0.2f Gyr" % stime
+		# snap = unique_snaps[snapnum]
+	for snap in snaps:
+		step = steps[[step.filename for step in steps].index(snap)]
+		stime = step.time_gyr
+		print ("t = %0.2f Gyr" % stime)
 		active_snap = pynbody.load(snap)
 		halo_ptcls = active_snap.halos(dosort=True).load_copy(halonum_pb)
 		halo_ptcls.physical_units()
-		print "halo loaded"
+		print ("halo loaded")
 		
 		pynbody.analysis.halo.center(halo_ptcls, mode='ssc')
 		#1: track particles from single burst
@@ -206,9 +203,9 @@ def trace_outflows():
 
 		# # #2: track growing wind 
 		if plot_zoom:
-			zoom(halo_ptcls, steps, snapnum, halonum, snap, cumul_indices)
+			zoom(halo_ptcls, halonum, step, cumul_indices)
 
-		print "snap %d done" % snapnum
+		print ("snap %d done" % stime)
 		del(active_snap)
 		del(halo_ptcls)
 		gc.collect()
